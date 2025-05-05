@@ -1,10 +1,10 @@
 package com.bonker.stardewfishing.client;
 
+import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.client.util.Animation;
 import com.bonker.stardewfishing.client.util.RenderUtil;
 import com.bonker.stardewfishing.client.util.Shake;
-import com.bonker.stardewfishing.common.init.SFSoundEvents;
 import com.bonker.stardewfishing.common.networking.C2SCompleteMinigamePacket;
 import com.bonker.stardewfishing.common.networking.S2CStartMinigamePacket;
 import com.bonker.stardewfishing.common.networking.SFNetworking;
@@ -16,7 +16,6 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -259,7 +258,7 @@ public class FishingScreen extends Screen {
                     if (animationTimer == Integer.MIN_VALUE) {
                         animationTimer = -5;
 
-                        playSound(SFSoundEvents.CHEST_GET.get());
+                        playSound(Sound.chest_get);
                     }
 
                     if (animationTimer < 0) {
@@ -274,7 +273,7 @@ public class FishingScreen extends Screen {
 
                 if (reelSoundTimer == -1 || --reelSoundTimer == 0) {
                     reelSoundTimer = onFish ? REEL_FAST_LENGTH : REEL_SLOW_LENGTH;
-                    playSound(onFish ? SFSoundEvents.REEL_FAST.get() : SFSoundEvents.REEL_SLOW.get());
+                    playSound(onFish ? Sound.reel_fast : Sound.reel_slow);
                 }
 
                 if (creakSoundTimer > 0) {
@@ -282,7 +281,7 @@ public class FishingScreen extends Screen {
                 }
                 if (mouseDown && creakSoundTimer == 0) {
                     creakSoundTimer = CREAK_LENGTH;
-                    playSound(SFSoundEvents.REEL_CREAK.get());
+                    playSound(Sound.reel_creak);
                 }
             }
             case SUCCESS, FAILURE -> {
@@ -291,7 +290,7 @@ public class FishingScreen extends Screen {
                         status = Status.CHEST_OPENING;
                         animationTimer = 30;
 
-                        playSound(goldenChest ? SFSoundEvents.OPEN_CHEST_GOLDEN.get() : SFSoundEvents.OPEN_CHEST.get());
+                        playSound(goldenChest ? Sound.open_chest_golden : Sound.open_chest);
                     } else {
                         onClose();
                     }
@@ -315,7 +314,7 @@ public class FishingScreen extends Screen {
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         if (status == Status.MINIGAME && pButton == GLFW.GLFW_MOUSE_BUTTON_1 || pButton == GLFW.GLFW_MOUSE_BUTTON_2) {
             if (!mouseDown) {
-                playSound(SFSoundEvents.REEL_CREAK.get());
+                playSound(Sound.reel_creak);
                 mouseDown = true;
             }
             return true;
@@ -371,21 +370,21 @@ public class FishingScreen extends Screen {
         chestProgress.freeze();
         chestAppear.freeze();
 
-        playSound(success ? SFSoundEvents.COMPLETE.get() : SFSoundEvents.FISH_ESCAPE.get());
+        playSound(success ? Sound.complete : Sound.fish_escape);
         stopReelingSounds();
         reelSoundTimer = -2;
         shake.setValues(2.0F, 1);
     }
 
-    public void playSound(SoundEvent soundEvent) {
-        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(soundEvent, 1.0F));
+    public void playSound(Sound sound) {
+        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(StardewFishing.platform.getSoundEvent(sound), 1.0F));
     }
 
     public void stopReelingSounds() {
         reelSoundTimer = 1;
 
-        minecraft.getSoundManager().stop(SFSoundEvents.REEL_FAST.getId(), null);
-        minecraft.getSoundManager().stop(SFSoundEvents.REEL_SLOW.getId(), null);
+        minecraft.getSoundManager().stop(StardewFishing.platform.getSoundEvent(Sound.reel_fast).getLocation(), null);
+        minecraft.getSoundManager().stop(StardewFishing.platform.getSoundEvent(Sound.reel_slow).getLocation(), null);
     }
 
     public enum Status {

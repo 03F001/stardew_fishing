@@ -2,15 +2,13 @@ package com.bonker.stardewfishing;
 
 import com.bonker.stardewfishing.common.init.SFItems;
 import com.bonker.stardewfishing.common.init.SFLootPoolEntryTypes;
-import com.bonker.stardewfishing.common.init.SFSoundEvents;
 import com.bonker.stardewfishing.common.networking.SFNetworking;
+import com.bonker.stardewfishing.forge.ForgePlatform;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -18,13 +16,10 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
 @Mod(StardewFishing.MODID)
 public class StardewFishing {
-    @Deprecated(since = "2.0", forRemoval = true)
-    public static RegistryObject<SoundEvent> PULL_ITEM; //TODO remove this, temporary tide fix
     public static final String MODID = Version.id;
 
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -41,14 +36,16 @@ public class StardewFishing {
 
     public static String MOD_NAME;
 
+    public static Platform platform;
+
     public StardewFishing() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
         IModInfo info = ModLoadingContext.get().getActiveContainer().getModInfo();
         MOD_NAME = info.getDisplayName() + " " + info.getVersion();
 
-        SFSoundEvents.SOUND_EVENTS.register(bus);
-        PULL_ITEM = SFSoundEvents.PULL_ITEM; //TODO remove this, temporary tide fix
+        platform = new ForgePlatform(bus);
+
         SFLootPoolEntryTypes.LOOT_POOL_ENTRY_TYPES.register(bus);
 
         if (BOBBER_ITEMS_REGISTERED) {

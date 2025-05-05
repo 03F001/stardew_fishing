@@ -89,8 +89,15 @@ def genVersion = tasks.register('genVersion', Copy) {
 
 sourceSets {
     main {
-        java { srcDir genVersion }
-        resources { srcDir 'src/generated/resources' }
+        java {
+            srcDir genVersion
+            srcDirs += project(':common').file('src/main/java')
+        }
+
+        resources {
+            srcDir 'src/generated/resources'
+            srcDirs += project(':common').file('src/main/resources')
+        }
     }
 }
 

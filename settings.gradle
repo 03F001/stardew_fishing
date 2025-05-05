@@ -39,4 +39,4 @@ plugins {
 }
 
 rootProject.name = 'stardewfishing'
-include 'common', 'forge'
+include ':common', ':forge'

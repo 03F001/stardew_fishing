@@ -1,10 +1,10 @@
 package com.bonker.stardewfishing.client;
 
 import com.bonker.stardewfishing.StardewFishing;
+import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.common.FishBehavior;
 import com.bonker.stardewfishing.common.FishingHookLogic;
 import com.bonker.stardewfishing.common.init.SFItems;
-import com.bonker.stardewfishing.common.init.SFSoundEvents;
 import com.bonker.stardewfishing.proxy.BobberGetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
@@ -161,11 +161,11 @@ public class FishingMinigame {
 
         if (wasOnFish != bobberOnFish) {
             screen.stopReelingSounds();
-            screen.playSound(SFSoundEvents.DWOP.get());
+            screen.playSound(Sound.dwop);
         }
 
         if (wasOnChest != bobberOnChest) {
-            screen.playSound(SFSoundEvents.DWOP.get());
+            screen.playSound(Sound.dwop);
         }
 
         if (!bobberOnChest && chestTimer > 0 && chestTimer < TREASURE_CHEST_TIME) {

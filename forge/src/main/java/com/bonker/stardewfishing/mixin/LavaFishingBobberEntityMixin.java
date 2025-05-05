@@ -1,9 +1,10 @@
 package com.bonker.stardewfishing.mixin;
 
 import com.bonker.stardewfishing.SFConfig;
+import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.common.FishingHookLogic;
-import com.bonker.stardewfishing.common.init.SFSoundEvents;
+
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -70,7 +71,7 @@ public abstract class LavaFishingBobberEntityMixin extends FishingHook {
             }
         } else {
             FishingHookLogic.modifyRewards(items, 0, null);
-            player.level().playSound(null, player, SFSoundEvents.PULL_ITEM.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.level().playSound(null, player, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
         }
     }
 }
