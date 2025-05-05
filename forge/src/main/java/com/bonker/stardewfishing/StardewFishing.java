@@ -1,7 +1,6 @@
 package com.bonker.stardewfishing;
 
 import com.bonker.stardewfishing.common.init.SFItems;
-import com.bonker.stardewfishing.common.init.SFLootPoolEntryTypes;
 import com.bonker.stardewfishing.common.networking.SFNetworking;
 import com.bonker.stardewfishing.forge.ForgePlatform;
 import com.mojang.logging.LogUtils;
@@ -45,8 +44,6 @@ public class StardewFishing {
         MOD_NAME = info.getDisplayName() + " " + info.getVersion();
 
         platform = new ForgePlatform(bus);
-
-        SFLootPoolEntryTypes.LOOT_POOL_ENTRY_TYPES.register(bus);
 
         if (BOBBER_ITEMS_REGISTERED) {
             SFItems.ITEMS.register(bus);

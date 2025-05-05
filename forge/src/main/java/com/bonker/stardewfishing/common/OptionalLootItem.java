@@ -1,6 +1,6 @@
 package com.bonker.stardewfishing.common;
 
-import com.bonker.stardewfishing.common.init.SFLootPoolEntryTypes;
+import com.bonker.stardewfishing.StardewFishing;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
@@ -56,7 +56,7 @@ public class OptionalLootItem extends LootPoolSingletonContainer {
 
     @Override
     public LootPoolEntryType getType() {
-        return SFLootPoolEntryTypes.MOD_LOADED.get();
+        return StardewFishing.platform.getLootPoolEntryType();
     }
 
     protected abstract class OptionalEntryBase extends LootPoolSingletonContainer.EntryBase {

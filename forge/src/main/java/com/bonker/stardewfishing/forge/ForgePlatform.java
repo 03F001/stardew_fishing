@@ -1,12 +1,15 @@
 package com.bonker.stardewfishing.forge;
 
+import com.bonker.stardewfishing.common.OptionalLootItem;
 import com.bonker.stardewfishing.Platform;
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -17,17 +20,27 @@ import java.util.stream.*;
 
 public class ForgePlatform implements Platform {
     private final DeferredRegister<SoundEvent> soundsRegistry = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, StardewFishing.MODID);
+    private final DeferredRegister<LootPoolEntryType> lootPoolEntryTypeRegistry = DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, StardewFishing.MODID);
 
     private final ArrayList<RegistryObject<SoundEvent>> sounds = Arrays.stream(Sound.values())
         .map(s -> soundsRegistry.register(s.name(), () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(StardewFishing.MODID, s.name()))))
         .collect(Collectors.toCollection(ArrayList::new));
 
+    private final RegistryObject<LootPoolEntryType> lootPoolEntryType = lootPoolEntryTypeRegistry.register("optional",
+            () -> new LootPoolEntryType(new OptionalLootItem.Serializer()));
+
     public ForgePlatform(IEventBus bus) {
         soundsRegistry.register(bus);
+        lootPoolEntryTypeRegistry.register(bus);
     }
 
     @Override
     public SoundEvent getSoundEvent(Sound sound) {
         return sounds.get(sound.ordinal()).get();
+    }
+
+    @Override
+    public LootPoolEntryType getLootPoolEntryType() {
+        return lootPoolEntryType.get();
     }
 }
