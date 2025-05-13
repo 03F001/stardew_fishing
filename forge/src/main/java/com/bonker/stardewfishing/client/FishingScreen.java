@@ -5,9 +5,7 @@ import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.client.util.Animation;
 import com.bonker.stardewfishing.client.util.RenderUtil;
 import com.bonker.stardewfishing.client.util.Shake;
-import com.bonker.stardewfishing.common.networking.C2SCompleteMinigamePacket;
 import com.bonker.stardewfishing.common.networking.S2CStartMinigamePacket;
-import com.bonker.stardewfishing.common.networking.SFNetworking;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -338,7 +336,7 @@ public class FishingScreen extends Screen {
     @Override
     public void onClose() {
         super.onClose();
-        SFNetworking.sendToServer(new C2SCompleteMinigamePacket(status == Status.SUCCESS || status == Status.CHEST_OPENING, accuracy, gotChest));
+        StardewFishing.platform.completeMinigame(status == Status.SUCCESS || status == Status.CHEST_OPENING, accuracy, gotChest);
 
         stopReelingSounds();
     }

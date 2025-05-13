@@ -1,7 +1,6 @@
 package com.bonker.stardewfishing;
 
 import com.bonker.stardewfishing.common.init.SFItems;
-import com.bonker.stardewfishing.common.networking.SFNetworking;
 import com.bonker.stardewfishing.forge.ForgePlatform;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -49,8 +48,6 @@ public class StardewFishing {
             SFItems.ITEMS.register(bus);
             SFItems.CREATIVE_MODE_TABS.register(bus);
         }
-
-        SFNetworking.register();
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SFConfig.SERVER_SPEC);
     }

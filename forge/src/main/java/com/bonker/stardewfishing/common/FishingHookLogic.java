@@ -4,11 +4,8 @@ import com.bonker.stardewfishing.SFConfig;
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.common.init.SFItems;
-import com.bonker.stardewfishing.common.networking.S2CStartMinigamePacket;
-import com.bonker.stardewfishing.common.networking.SFNetworking;
 import com.bonker.stardewfishing.proxy.BobberGetter;
 import com.bonker.stardewfishing.proxy.QualityFoodProxy;
-import com.bonker.stardewfishing.server.FishBehaviorReloadListener;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -96,7 +93,7 @@ public class FishingHookLogic {
                 }
             }
 
-            SFNetworking.sendToPlayer(player, new S2CStartMinigamePacket(FishBehaviorReloadListener.getBehavior(fish), fish, cap.treasureChest, cap.goldenChest));
+            StardewFishing.platform.startMinigame(player, fish, cap.treasureChest, cap.goldenChest);
         });
 
         return true;
