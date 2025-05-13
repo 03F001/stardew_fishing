@@ -5,7 +5,7 @@ import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.client.util.Animation;
 import com.bonker.stardewfishing.client.util.RenderUtil;
 import com.bonker.stardewfishing.client.util.Shake;
-import com.bonker.stardewfishing.common.networking.S2CStartMinigamePacket;
+import com.bonker.stardewfishing.common.FishBehavior;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -68,10 +68,10 @@ public class FishingScreen extends Screen {
 
     private float partialTick = 0;
 
-    public FishingScreen(S2CStartMinigamePacket packet) {
+    public FishingScreen(FishBehavior behavior, ItemStack fish, boolean treasureChest, boolean goldenChest) {
         super(TITLE);
-        this.minigame = new FishingMinigame(this, packet.behavior(), packet.treasureChest(), packet.goldenChest());
-        this.fish = packet.fish();
+        this.minigame = new FishingMinigame(this, behavior, treasureChest, goldenChest);
+        this.fish = fish;
         this.progressBar = new Animation(minigame.getProgress());
     }
 
