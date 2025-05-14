@@ -1,4 +1,4 @@
-package com.bonker.stardewfishing.proxy;
+package com.bonker.stardewfishing.forge.compat;
 
 import com.teammetallurgy.aquaculture.item.AquaFishingRodItem;
 import net.minecraft.core.particles.ItemParticleOption;

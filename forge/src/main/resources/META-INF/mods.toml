@@ -8,7 +8,7 @@ version="${version}"
 displayName="${mod_name}"
 credits="${credits}"
 authors="${authors}"
-description='''${description}'''
+description="${description}"
 
 [[dependencies."${mod_id}"]]
    modId="forge"

@@ -1,26 +1,30 @@
 package com.bonker.stardewfishing.forge;
 
 import com.bonker.stardewfishing.client.FishingScreen;
-import com.bonker.stardewfishing.common.FishBehavior;
-import com.bonker.stardewfishing.common.FishingHookLogic;
-import com.bonker.stardewfishing.common.OptionalLootItem;
+import com.bonker.stardewfishing.FishBehavior;
 import com.bonker.stardewfishing.Platform;
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
-import com.bonker.stardewfishing.proxy.AquacultureProxy;
-import com.bonker.stardewfishing.server.FishBehaviorReloadListener;
+import com.bonker.stardewfishing.compat.TideProxy;
+import com.bonker.stardewfishing.forge.compat.AquacultureProxy;
+import com.bonker.stardewfishing.forge.server.FishBehaviorReloadListener;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.projectile.FishingHook;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 
+import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
@@ -32,6 +36,8 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -47,7 +53,7 @@ public class ForgePlatform implements Platform {
             () -> new LootPoolEntryType(new OptionalLootItem.Serializer()));
 
     private static final String PROTOCOL_VERSION = "1";
-    private SimpleChannel channel;
+    private final SimpleChannel channel;
 
     enum Message {
         StartMinigame,
@@ -91,12 +97,64 @@ public class ForgePlatform implements Platform {
     @Override
     public void startMinigame(ServerPlayer player, ItemStack fish, boolean treasureChest, boolean goldenChest) {
         channel.send(PacketDistributor.PLAYER.with(() -> player),
-                new S2CStartMinigamePacket(FishBehaviorReloadListener.getBehavior(fish), fish, treasureChest, goldenChest));
+            new S2CStartMinigamePacket(FishBehaviorReloadListener.getBehavior(fish), fish, treasureChest, goldenChest));
     }
 
     @Override
     public void completeMinigame(boolean success, double accuracy, boolean gotChest) {
         channel.send(PacketDistributor.SERVER.noArg(), new C2SCompleteMinigamePacket(success, accuracy, gotChest));
+    }
+
+    @Override
+    public int getQuality(double accuracy) {
+        return Config.getQuality(accuracy);
+    }
+
+    @Override
+    public double getMultiplier(double accuracy, boolean qualityBobber) {
+        return Config.getMultiplier(accuracy, qualityBobber);
+    }
+
+    @Override
+    public double getBiteTimeMultiplier() {
+        return Config.getBiteTimeMultiplier();
+    }
+
+    @Override
+    public double getTreasureChestChance() {
+        return Config.getTreasureChestChance();
+    }
+
+    @Override
+    public double getGoldenChestChance() {
+        return Config.getGoldenChestChance();
+    }
+
+    @Override
+    public Item getItem(com.bonker.stardewfishing.Item item) {
+        return switch (item) {
+            case trap_bobber -> Items.TRAP_BOBBER.get();
+            case cork_bobber -> Items.CORK_BOBBER.get();
+            case sonar_bobber -> Items.SONAR_BOBBER.get();
+            case treasure_bobber -> Items.TREASURE_BOBBER.get();
+            case quality_bobber -> Items.QUALITY_BOBBER.get();
+        };
+    }
+
+    @Override
+    public ItemStack getBobber(ItemStack fishingRod) {
+        if (StardewFishing.AQUACULTURE_INSTALLED && AquacultureProxy.isAquaRod(fishingRod)) {
+            return AquacultureProxy.getBobber(fishingRod);
+        } else if (StardewFishing.TIDE_INSTALLED) {
+            return TideProxy.getBobber(fishingRod);
+        } else {
+            return ItemStack.EMPTY;
+        }
+    }
+
+    @Override
+    public void renderTooltip(GuiGraphics pGuiGraphics, Font font, List<Component> textComponents, Optional<TooltipComponent> tooltipComponent, ItemStack stack, int mouseX, int mouseY) {
+        pGuiGraphics.renderTooltip(font, textComponents, tooltipComponent, stack, mouseX, mouseY);
     }
 }
 
@@ -135,20 +193,20 @@ record C2SCompleteMinigamePacket(boolean success, double accuracy, boolean gotCh
             return;
         }
 
-        FishingHook hook = player.fishing;
-        if (hook == null || FishingHookLogic.getStoredRewards(hook).isEmpty()) {
+        var hook = player.fishing;
+        if (hook == null || FishingHook.getStoredRewards(hook).isEmpty()) {
             StardewFishing.LOGGER.warn("{} tried to complete a fishing minigame that doesn't exist", player.getScoreboardName());
             return;
         }
 
         contextSupplier.get().enqueueWork(() -> {
-            InteractionHand hand = FishingHookLogic.getRodHand(player);
+            InteractionHand hand = com.bonker.stardewfishing.FishingHook.getRodHand(player);
             if (hand == null) {
-                FishingHookLogic.endMinigame(player, false, 0, gotChest, null);
+                FishingHook.endMinigame(player, false, 0, gotChest, null);
                 StardewFishing.LOGGER.warn("{} tried to complete a fishing minigame without a fishing rod", player.getScoreboardName());
             } else {
                 ItemStack fishingRod = player.getItemInHand(hand);
-                FishingHookLogic.endMinigame(player, success, accuracy, gotChest, fishingRod);
+                FishingHook.endMinigame(player, success, accuracy, gotChest, fishingRod);
                 fishingRod.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
 
                 if (StardewFishing.AQUACULTURE_INSTALLED) {

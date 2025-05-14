@@ -1,4 +1,4 @@
-package com.bonker.stardewfishing.common;
+package com.bonker.stardewfishing;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

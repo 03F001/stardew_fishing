@@ -1,4 +1,4 @@
-package com.bonker.stardewfishing.proxy;
+package com.bonker.stardewfishing.compat;
 
 import com.li64.tide.data.rods.CustomRodManager;
 import net.minecraft.resources.ResourceLocation;

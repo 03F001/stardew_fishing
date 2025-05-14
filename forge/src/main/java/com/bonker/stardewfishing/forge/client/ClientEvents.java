@@ -1,11 +1,13 @@
-package com.bonker.stardewfishing.client;
+package com.bonker.stardewfishing.forge.client;
 
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.world.entity.player.Player;
+
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.sound.PlaySoundSourceEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

@@ -1,4 +1,4 @@
-package com.bonker.stardewfishing.proxy;
+package com.bonker.stardewfishing.compat;
 
 import de.cadentem.quality_food.core.Quality;
 import de.cadentem.quality_food.util.QualityUtils;

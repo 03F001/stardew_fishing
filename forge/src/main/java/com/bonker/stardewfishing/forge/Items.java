@@ -1,14 +1,18 @@
-package com.bonker.stardewfishing.common.init;
+package com.bonker.stardewfishing.forge;
 
 import com.bonker.stardewfishing.StardewFishing;
-import com.bonker.stardewfishing.proxy.TideProxy;
+import com.bonker.stardewfishing.forge.compat.AquacultureProxy;
+import com.bonker.stardewfishing.compat.TideProxy;
+
 import com.google.common.collect.ImmutableList;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
+
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -16,7 +20,7 @@ import net.minecraftforge.registries.RegistryObject;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class SFItems {
+public class Items {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, StardewFishing.MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, StardewFishing.MODID);
 
@@ -75,6 +79,16 @@ public class SFItems {
                 tooltip = makeTooltip();
             }
             pTooltipComponents.addAll(tooltip);
+        }
+    }
+
+    public static ItemStack getBobber(ItemStack fishingRod) {
+        if (StardewFishing.AQUACULTURE_INSTALLED && AquacultureProxy.isAquaRod(fishingRod)) {
+            return AquacultureProxy.getBobber(fishingRod);
+        } else if (StardewFishing.TIDE_INSTALLED) {
+            return TideProxy.getBobber(fishingRod);
+        } else {
+            return ItemStack.EMPTY;
         }
     }
 }

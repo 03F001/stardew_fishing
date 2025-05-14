@@ -12,8 +12,8 @@ base {
 java.toolchain.languageVersion = JavaLanguageVersion.of(java_version)
 
 mixin {
-    add sourceSets.main, "mixins.${mod_id}.refmap.json"
-    config "mixins.${mod_id}.json"
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
 }
 
 minecraft {
@@ -106,7 +106,10 @@ repositories {
     // - netherdepthsupgrade-3.1.5-1.20.jar
     // - quality_food-1.20.1-1.7.3-all.jar
     // - Tide-forge-1.20.1-1.5.0.jar
-    flatDir { dir 'libs' }
+    flatDir {
+        dirs project(':common').file('libs')
+        dir 'libs'
+    }
 
     // aquaculture 2
     exclusiveContent {
@@ -150,7 +153,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly project(':common')
+    implementation project(':common')
     minecraft group: 'net.minecraftforge', name: 'forge', version: "${minecraft_version}-${forge_version}"
 
     implementation group: 'org.jetbrains', name: 'annotations', version: '16.0.3'
@@ -198,7 +201,7 @@ tasks.named('processResources', ProcessResources).configure {
         license: license,
         version: version,
         authors: authors,
-        description: description,
+        description: project.property('description'),
         credits: credits,
     ]
 

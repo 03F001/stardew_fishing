@@ -1,12 +1,15 @@
-package com.bonker.stardewfishing.server;
+package com.bonker.stardewfishing.forge.server;
 
 import com.bonker.stardewfishing.StardewFishing;
-import com.bonker.stardewfishing.common.FishBehavior;
+import com.bonker.stardewfishing.FishBehavior;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -15,6 +18,10 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -87,5 +94,13 @@ public class FishBehaviorReloadListener extends SimplePreparableReloadListener<M
                 Codec.unboundedMap(ResourceLocation.CODEC, FishBehavior.CODEC).fieldOf("behaviors").forGetter(FishBehaviorList::behaviors),
                 FishBehavior.CODEC.optionalFieldOf("defaultBehavior").forGetter(FishBehaviorList::defaultBehavior)
         ).apply(inst, FishBehaviorList::new));
+    }
+
+    @Mod.EventBusSubscriber(modid = StardewFishing.MODID)
+    public static class ForgeBus {
+        @SubscribeEvent
+        public static void onAddReloadListeners(final AddReloadListenerEvent event) {
+            event.addListener(FishBehaviorReloadListener.create());
+        }
     }
 }

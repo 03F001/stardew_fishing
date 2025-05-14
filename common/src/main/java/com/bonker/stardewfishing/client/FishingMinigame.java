@@ -2,10 +2,8 @@ package com.bonker.stardewfishing.client;
 
 import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.Sound;
-import com.bonker.stardewfishing.common.FishBehavior;
-import com.bonker.stardewfishing.common.FishingHookLogic;
-import com.bonker.stardewfishing.common.init.SFItems;
-import com.bonker.stardewfishing.proxy.BobberGetter;
+import com.bonker.stardewfishing.FishBehavior;
+import com.bonker.stardewfishing.FishingHook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -63,16 +61,16 @@ public class FishingMinigame {
         // set bobber flags
         Player player = Minecraft.getInstance().player;
         if (StardewFishing.BOBBER_ITEMS_REGISTERED && player != null) {
-            InteractionHand hand = FishingHookLogic.getRodHand(player);
+            InteractionHand hand = FishingHook.getRodHand(player);
             if (hand != null) {
-                Item bobberItem = BobberGetter.getBobber(player.getItemInHand(hand)).getItem();
-                if (bobberItem == SFItems.CORK_BOBBER.get()) {
+                Item bobberItem = StardewFishing.platform.getBobber(player.getItemInHand(hand)).getItem();
+                if (bobberItem == StardewFishing.platform.getItem(com.bonker.stardewfishing.Item.cork_bobber)) {
                     hasCorkBobber = true;
-                } else if (bobberItem == SFItems.SONAR_BOBBER.get()) {
+                } else if (bobberItem == StardewFishing.platform.getItem(com.bonker.stardewfishing.Item.sonar_bobber)) {
                     hasSonarBobber = true;
-                } else if (bobberItem == SFItems.TRAP_BOBBER.get()) {
+                } else if (bobberItem == StardewFishing.platform.getItem(com.bonker.stardewfishing.Item.trap_bobber)) {
                     hasTrapBobber = true;
-                } else if (bobberItem == SFItems.TREASURE_BOBBER.get()) {
+                } else if (bobberItem == StardewFishing.platform.getItem(com.bonker.stardewfishing.Item.treasure_bobber)) {
                     hasTreasureBobber = true;
                 }
             }

@@ -1,4 +1,4 @@
-package com.bonker.stardewfishing.common;
+package com.bonker.stardewfishing.forge;
 
 import com.bonker.stardewfishing.StardewFishing;
 import com.google.gson.JsonDeserializationContext;

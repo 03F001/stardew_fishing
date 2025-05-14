@@ -1,10 +1,12 @@
-package com.bonker.stardewfishing;
+package com.bonker.stardewfishing.forge;
+
+import com.bonker.stardewfishing.StardewFishing;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = StardewFishing.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class SFConfig {
+public class Config {
     static final ForgeConfigSpec SERVER_SPEC;
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
@@ -64,11 +66,11 @@ public class SFConfig {
     }
 
     public static int getQuality(double accuracy) {
-        if (accuracy >= SFConfig.QUALITY_3_THRESHOLD.get()) {
+        if (accuracy >= Config.QUALITY_3_THRESHOLD.get()) {
             return 3;
-        } else if (accuracy >= SFConfig.QUALITY_2_THRESHOLD.get()) {
+        } else if (accuracy >= Config.QUALITY_2_THRESHOLD.get()) {
             return 2;
-        } else if (accuracy >= SFConfig.QUALITY_1_THRESHOLD.get()) {
+        } else if (accuracy >= Config.QUALITY_1_THRESHOLD.get()) {
             return 1;
         }
         return 0;
