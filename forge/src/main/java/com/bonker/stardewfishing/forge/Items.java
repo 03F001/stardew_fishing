@@ -17,7 +17,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
 public class Items {
@@ -41,16 +42,16 @@ public class Items {
     });
 
     public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_MODE_TABS.register("items", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.stardewFishing"))
-            .icon(() -> new ItemStack(TRAP_BOBBER.get()))
-            .displayItems((pParameters, pOutput) -> {
-                pOutput.accept(TRAP_BOBBER.get());
-                pOutput.accept(CORK_BOBBER.get());
-                pOutput.accept(SONAR_BOBBER.get());
-                pOutput.accept(TREASURE_BOBBER.get());
-                pOutput.accept(QUALITY_BOBBER.get());
-            })
-            .build());
+        .title(Component.translatable("itemGroup.stardewFishing"))
+        .icon(() -> new ItemStack(TRAP_BOBBER.get()))
+        .displayItems((pParameters, pOutput) -> {
+            pOutput.accept(TRAP_BOBBER.get());
+            pOutput.accept(CORK_BOBBER.get());
+            pOutput.accept(SONAR_BOBBER.get());
+            pOutput.accept(TREASURE_BOBBER.get());
+            pOutput.accept(QUALITY_BOBBER.get());
+        })
+        .build());
 
     public static class BobberItem extends Item implements DyeableLeatherItem {
         private List<Component> tooltip;

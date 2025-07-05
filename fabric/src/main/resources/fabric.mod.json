@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "${description}",
+  "authors": [
+    "${authors}"
+  ],
+  "contact": {
+  },
+  "license": "${license}",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.bonker.stardewfishing.fabric.Client"
+    ],
+    "main": [
+      "com.bonker.stardewfishing.fabric.Entry"
+    ]
+  },
+  "mixins": [
+    "stardew_fishing.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric": "*",
+    "minecraft": ">=${minecraft_version}"
+  },
+  "accessWidener" : "stardew_fishing.accesswidener"
+}

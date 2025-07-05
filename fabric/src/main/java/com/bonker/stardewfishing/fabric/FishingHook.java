@@ -1,11 +1,14 @@
-package com.bonker.stardewfishing.forge;
+package com.bonker.stardewfishing.fabric;
 
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.compat.QualityFoodProxy;
 
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.entity.FakePlayer;
+
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,7 +17,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -24,19 +26,6 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.entity.player.ItemFishedEvent;
-
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -48,14 +37,21 @@ public class FishingHook extends com.bonker.stardewfishing.FishingHook {
     private boolean treasureChest = false;
     private boolean goldenChest = false;
 
+    public static final ResourceLocation NAME = new ResourceLocation(StardewFishing.MODID, "hook");
+    public static final AttachmentType<Optional<FishingHook>> HOOK = AttachmentRegistry.createDefaulted(NAME, () -> Optional.of(new FishingHook()));
+
+    public static Optional<FishingHook> getFishingHook(net.minecraft.world.entity.projectile.FishingHook entity) {
+        return entity.getAttachedOrCreate(HOOK);
+    }
+
     public static Optional<ArrayList<ItemStack>> getStoredRewards(net.minecraft.world.entity.projectile.FishingHook entity) {
-        return entity.getCapability(CapProvider.CAP).map(cap -> cap.rewards);
+        return getFishingHook(entity).map(cap -> cap.rewards);
     }
 
     public static boolean startMinigame(ServerPlayer player) {
         if (player.fishing == null || player instanceof FakePlayer) return false;
 
-        player.fishing.getCapability(CapProvider.CAP).resolve().ifPresent(cap -> {
+        getFishingHook(player.fishing).ifPresent(cap -> {
             ItemStack fish = cap.rewards.stream()
                 .filter(stack -> stack.is(StardewFishing.STARTS_MINIGAME))
                 .findFirst()
@@ -126,8 +122,7 @@ public class FishingHook extends com.bonker.stardewfishing.FishingHook {
         if (player.fishing == null) return;
 
         var hook = player.fishing;
-
-        hook.getCapability(CapProvider.CAP).ifPresent(cap -> {
+        getFishingHook(hook).ifPresent(cap -> {
             if (cap.treasureChest && gotChest) {
                 cap.rewards.addAll(getTreasureChestLoot(player.serverLevel(), cap.goldenChest));
             }
@@ -136,11 +131,13 @@ public class FishingHook extends com.bonker.stardewfishing.FishingHook {
                 hook.discard();
             }
 
+            /*
             if (MinecraftForge.EVENT_BUS.post(new ItemFishedEvent(cap.rewards, 1, hook))) {
                 player.level().playSound(null, player, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
                 hook.discard();
                 return;
             }
+            */
 
             ServerLevel level = player.serverLevel();
             for (ItemStack reward : cap.rewards) {
@@ -205,29 +202,5 @@ public class FishingHook extends com.bonker.stardewfishing.FishingHook {
         }
 
         return items;
-    }
-
-    static class CapProvider implements ICapabilityProvider {
-        static final Capability<FishingHook> CAP = CapabilityManager.get(new CapabilityToken<>() {});
-        static final ResourceLocation NAME = new ResourceLocation(StardewFishing.MODID, "hook");
-
-        private final LazyOptional<FishingHook> optional = LazyOptional.of(FishingHook::new);
-
-        @Override
-        public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-            return cap == CAP ? optional.cast() : LazyOptional.empty();
-        }
-    }
-
-    @Mod.EventBusSubscriber(modid = StardewFishing.MODID)
-    public static class ForgeBus {
-        @SubscribeEvent
-        public static void onAttachCapabilitiesPlayer(final AttachCapabilitiesEvent<Entity> event) {
-            if (event.getObject() instanceof net.minecraft.world.entity.projectile.FishingHook) {
-                if (!event.getObject().getCapability(FishingHook.CapProvider.CAP).isPresent()) {
-                    event.addCapability(FishingHook.CapProvider.NAME, new FishingHook.CapProvider());
-                }
-            }
-        }
     }
 }

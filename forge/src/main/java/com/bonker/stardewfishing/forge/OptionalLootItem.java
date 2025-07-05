@@ -1,9 +1,9 @@
 package com.bonker.stardewfishing.forge;
 
 import com.bonker.stardewfishing.StardewFishing;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+
+import net.minecraftforge.registries.ForgeRegistries;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
@@ -15,9 +15,13 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nullable;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+
+import org.jetbrains.annotations.Nullable;
+
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -28,7 +32,7 @@ public class OptionalLootItem extends LootPoolSingletonContainer {
     private final BiFunction<ItemStack, LootContext, ItemStack> compositeFunction;
     private final LootPoolEntry entry = new OptionalEntryBase() {
         public void createItemStack(Consumer<ItemStack> stackConsumer, LootContext context) {
-            OptionalLootItem.this.createItemStack(LootItemFunction.decorate(OptionalLootItem.this.compositeFunction, stackConsumer, context), context);
+        OptionalLootItem.this.createItemStack(LootItemFunction.decorate(OptionalLootItem.this.compositeFunction, stackConsumer, context), context);
         }
     };
 

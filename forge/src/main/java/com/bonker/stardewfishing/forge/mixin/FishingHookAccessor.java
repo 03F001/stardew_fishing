@@ -1,4 +1,4 @@
-package com.bonker.stardewfishing.mixin;
+package com.bonker.stardewfishing.forge.mixin;
 
 import net.minecraft.world.entity.projectile.FishingHook;
 

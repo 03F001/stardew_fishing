@@ -1,4 +1,4 @@
-package com.bonker.stardewfishing.mixin;
+package com.bonker.stardewfishing.forge.mixin;
 
 import com.bonker.stardewfishing.forge.Items;
 

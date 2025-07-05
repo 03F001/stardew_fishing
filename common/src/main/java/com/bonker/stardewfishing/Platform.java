@@ -9,6 +9,8 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +23,7 @@ public interface Platform
     void startMinigame(ServerPlayer player, ItemStack fish, boolean treasureChest, boolean goldenChest);
     void completeMinigame(boolean success, double accuracy, boolean gotChest);
 
+    FishBehavior getFishBehavior(@Nullable ItemStack stack);
     int getQuality(double accuracy);
     double getMultiplier(double accuracy, boolean qualityBobber);
     double getBiteTimeMultiplier();

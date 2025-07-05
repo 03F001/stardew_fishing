@@ -1,4 +1,4 @@
-package com.bonker.stardewfishing.mixin;
+package com.bonker.stardewfishing.forge.mixin;
 
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
@@ -9,15 +9,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.FishingHook;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,47 +24,45 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-@Pseudo
-@Mixin(targets = "com.scouter.netherdepthsupgrade.entity.entities.LavaFishingBobberEntity")
-public abstract class LavaFishingBobberEntityMixin extends FishingHook {
-    @Shadow private int nibble;
-
-    @Shadow private int timeUntilHooked;
-
-    @Shadow private int timeUntilLured;
-
-    @Shadow @Final private int lureSpeed;
-
-    private LavaFishingBobberEntityMixin(EntityType<? extends FishingHook> pEntityType, Level pLevel) {
+@Mixin(value = FishingHook.class)
+public abstract class FishingHookMixin extends Entity implements FishingHookAccessor {
+    private FishingHookMixin(EntityType<? extends Projectile> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
 
-    @Inject(method = "catchingFish(Lnet/minecraft/core/BlockPos;)V", at = @At(value = "HEAD"), cancellable = true, remap = false)
+    @Inject(method = "catchingFish", at = @At(value = "HEAD"), cancellable = true)
     private void cancel_catchingFish(BlockPos pPos, CallbackInfo ci) {
-        if (nibble <= 0 && timeUntilHooked <= 0 && timeUntilLured <= 0) {
+        FishingHook hook = (FishingHook) (Object) this;
+
+        if (getNibble() <= 0 && getTimeUntilHooked() <= 0 && getTimeUntilLured() <= 0) {
             // replicate vanilla
-            timeUntilLured = Mth.nextInt(random, 100, 600);
-            timeUntilLured -= lureSpeed * 20 * 5;
+            int time = Mth.nextInt(random, 100, 600);
+            time -= getLureSpeed() * 20 * 5;
 
             // apply configurable reduction
-            timeUntilLured = Math.max(1, (int) (timeUntilLured * StardewFishing.platform.getBiteTimeMultiplier()));
+            time = Math.max(1, (int) (time * StardewFishing.platform.getBiteTimeMultiplier()));
+
+            setTimeUntilLured(time);
         }
 
-        if (com.bonker.stardewfishing.forge.FishingHook.getStoredRewards(this).isEmpty()) {
+        if (com.bonker.stardewfishing.forge.FishingHook.getStoredRewards(hook).map(list -> !list.isEmpty()).orElse(false)) {
             ci.cancel();
         }
     }
 
-    @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"),
-            cancellable = true)
+    @Inject(
+        method = "retrieve",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"),
+        cancellable = true)
     public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, @Local List<ItemStack> items) {
-        ServerPlayer player = (ServerPlayer) getPlayerOwner();
+        FishingHook hook = (FishingHook) (Object) this;
+        ServerPlayer player = (ServerPlayer) hook.getPlayerOwner();
         if (player == null) return;
 
         if (items.stream().anyMatch(stack -> stack.is(StardewFishing.STARTS_MINIGAME))) {
-            com.bonker.stardewfishing.forge.FishingHook.getStoredRewards(this).ifPresent(rewards -> rewards.addAll(items));
+            com.bonker.stardewfishing.forge.FishingHook.getStoredRewards(hook).ifPresent(rewards -> rewards.addAll(items));
             if (com.bonker.stardewfishing.forge.FishingHook.startMinigame(player)) {
                 cir.cancel();
             }

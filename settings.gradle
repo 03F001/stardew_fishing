@@ -31,6 +31,19 @@ pluginManagement {
             }
             filter { includeGroupAndSubgroups('net.minecraftforge') }
         }
+
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Fabric'
+                    url = 'https://maven.fabricmc.net/'
+                }
+            }
+            filter {
+                includeGroupAndSubgroups('fabric-loom')
+                includeGroupAndSubgroups('net.fabricmc')
+            }
+        }
     }
 }
 
@@ -39,4 +52,4 @@ plugins {
 }
 
 rootProject.name = 'stardewfishing'
-include ':common', ':forge'
+include ':common', ':forge', ':fabric'

@@ -1,6 +1,7 @@
 {
   "required": true,
-  "package": "com.bonker.stardewfishing.mixin",
+  "minVersion": "0.8",
+  "package": "com.bonker.stardewfishing.forge.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "stardew_fishing.refmap.json",
   "mixins": [
@@ -13,6 +14,5 @@
   "client": [],
   "injectors": {
     "defaultRequire": 1
-  },
-  "minVersion": "0.8"
+  }
 }
