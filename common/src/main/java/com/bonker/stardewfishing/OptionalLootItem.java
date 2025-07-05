@@ -1,8 +1,4 @@
-package com.bonker.stardewfishing.forge;
-
-import com.bonker.stardewfishing.StardewFishing;
-
-import net.minecraftforge.registries.ForgeRegistries;
+package com.bonker.stardewfishing;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -39,7 +35,7 @@ public class OptionalLootItem extends LootPoolSingletonContainer {
     protected OptionalLootItem(ResourceLocation itemId, int pWeight, int pQuality, LootItemCondition[] pConditions, LootItemFunction[] pFunctions) {
         super(pWeight, pQuality, pConditions, pFunctions);
         this.itemId = itemId;
-        this.item = ForgeRegistries.ITEMS.getValue(itemId);
+        this.item = StardewFishing.platform.getItem(itemId);
         this.compositeFunction = LootItemFunctions.compose(pFunctions);
     }
 

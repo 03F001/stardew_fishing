@@ -6,7 +6,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 
 public class Entry implements ModInitializer {
@@ -17,7 +16,7 @@ public class Entry implements ModInitializer {
         StardewFishing.TIDE_INSTALLED = FabricLoader.getInstance().isModLoaded("tide");
         StardewFishing.BOBBER_ITEMS_REGISTERED = StardewFishing.TIDE_INSTALLED;
 
-        StardewFishing.STARTS_MINIGAME = TagKey.create(BuiltInRegistries.ITEM.key(), new ResourceLocation(StardewFishing.MODID, "starts_minigame"));
+        StardewFishing.STARTS_MINIGAME = TagKey.create(BuiltInRegistries.ITEM.key(), StardewFishing.mkResLoc("starts_minigame"));
 
         FabricLoader.getInstance().getModContainer(StardewFishing.MODID).ifPresent(mod -> {
             StardewFishing.MOD_NAME = mod.getMetadata().getName() + " " + mod.getMetadata().getVersion().getFriendlyString();

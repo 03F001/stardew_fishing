@@ -3,6 +3,7 @@ package com.bonker.stardewfishing.forge;
 import com.bonker.stardewfishing.FishBehavior;
 import com.bonker.stardewfishing.FishBehaviorReloadListener;
 import com.bonker.stardewfishing.Platform;
+import com.bonker.stardewfishing.OptionalLootItem;
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.client.FishingScreen;
@@ -49,7 +50,7 @@ public class ForgePlatform implements Platform {
     private final DeferredRegister<LootPoolEntryType> lootPoolEntryTypeRegistry = DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, StardewFishing.MODID);
 
     private final ArrayList<RegistryObject<SoundEvent>> sounds = Arrays.stream(Sound.values())
-        .map(s -> soundsRegistry.register(s.name(), () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(StardewFishing.MODID, s.name()))))
+        .map(s -> soundsRegistry.register(s.name(), () -> SoundEvent.createVariableRangeEvent(StardewFishing.mkResLoc(s.name()))))
         .collect(Collectors.toCollection(ArrayList::new));
 
     private final RegistryObject<LootPoolEntryType> lootPoolEntryType = lootPoolEntryTypeRegistry.register("optional",
@@ -70,7 +71,7 @@ public class ForgePlatform implements Platform {
         lootPoolEntryTypeRegistry.register(bus);
 
         channel = NetworkRegistry.ChannelBuilder
-            .named(new ResourceLocation(StardewFishing.MODID, "packets"))
+            .named(StardewFishing.mkResLoc("packets"))
             .networkProtocolVersion(() -> PROTOCOL_VERSION)
             .clientAcceptedVersions(PROTOCOL_VERSION::equals)
             .serverAcceptedVersions(PROTOCOL_VERSION::equals)
@@ -149,6 +150,11 @@ public class ForgePlatform implements Platform {
             case treasure_bobber -> Items.TREASURE_BOBBER.get();
             case quality_bobber -> Items.QUALITY_BOBBER.get();
         };
+    }
+
+    @Override
+    public Item getItem(ResourceLocation itemId) {
+        return ForgeRegistries.ITEMS.getValue(itemId);
     }
 
     @Override

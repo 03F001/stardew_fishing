@@ -20,10 +20,15 @@ public class StardewFishing {
 
     public static TagKey<Item> STARTS_MINIGAME;
 
-    public static final ResourceLocation TREASURE_CHEST_LOOT = new ResourceLocation(MODID, "treasure_chest");
-    public static final ResourceLocation TREASURE_CHEST_NETHER_LOOT = new ResourceLocation(MODID, "treasure_chest_nether");
+    public static final ResourceLocation TREASURE_CHEST_LOOT = mkResLoc("treasure_chest");
+    public static final ResourceLocation TREASURE_CHEST_NETHER_LOOT = mkResLoc("treasure_chest_nether");
 
     public static String MOD_NAME;
 
     public static Platform platform;
+
+    public static ResourceLocation mkResLoc(String name)
+    {
+        return new ResourceLocation(MODID, name);
+    }
 }

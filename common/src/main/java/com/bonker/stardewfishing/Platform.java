@@ -3,6 +3,7 @@ package com.bonker.stardewfishing;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -31,6 +32,7 @@ public interface Platform
     double getGoldenChestChance();
 
     net.minecraft.world.item.Item getItem(com.bonker.stardewfishing.Item item);
+    net.minecraft.world.item.Item getItem(ResourceLocation item);
     ItemStack getBobber(ItemStack fishingRod);
 
     void renderTooltip(GuiGraphics pGuiGraphics, Font font, List<Component> textComponents, Optional<TooltipComponent> tooltipComponent, ItemStack stack, int mouseX, int mouseY);

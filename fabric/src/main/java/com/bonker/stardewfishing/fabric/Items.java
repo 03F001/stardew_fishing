@@ -27,11 +27,11 @@ public class Items {
     public static CreativeModeTab TAB;
 
     public static void register() {
-        TRAP_BOBBER = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(StardewFishing.MODID, "trap_bobber"), new BobberItem(new Item.Properties().durability(64)));
-        CORK_BOBBER = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(StardewFishing.MODID, "cork_bobber"), new BobberItem(new Item.Properties().durability(64)));
-        SONAR_BOBBER = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(StardewFishing.MODID, "sonar_bobber"), new BobberItem(new Item.Properties().durability(64)));
-        TREASURE_BOBBER = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(StardewFishing.MODID, "treasure_bobber"), new BobberItem(new Item.Properties().durability(64)));
-        QUALITY_BOBBER = Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(StardewFishing.MODID, "quality_bobber"), new BobberItem(new Item.Properties().durability(64)) {
+        TRAP_BOBBER = Registry.register(BuiltInRegistries.ITEM, StardewFishing.mkResLoc("trap_bobber"), new BobberItem(new Item.Properties().durability(64)));
+        CORK_BOBBER = Registry.register(BuiltInRegistries.ITEM, StardewFishing.mkResLoc("cork_bobber"), new BobberItem(new Item.Properties().durability(64)));
+        SONAR_BOBBER = Registry.register(BuiltInRegistries.ITEM, StardewFishing.mkResLoc("sonar_bobber"), new BobberItem(new Item.Properties().durability(64)));
+        TREASURE_BOBBER = Registry.register(BuiltInRegistries.ITEM, StardewFishing.mkResLoc("treasure_bobber"), new BobberItem(new Item.Properties().durability(64)));
+        QUALITY_BOBBER = Registry.register(BuiltInRegistries.ITEM, StardewFishing.mkResLoc("quality_bobber"), new BobberItem(new Item.Properties().durability(64)) {
             @Override
             protected List<Component> makeTooltip() {
                 ImmutableList.Builder<Component> builder = new ImmutableList.Builder<>();
@@ -45,7 +45,7 @@ public class Items {
 
         TAB = Registry.register(
             BuiltInRegistries.CREATIVE_MODE_TAB,
-            new ResourceLocation(StardewFishing.MODID, "items"),
+            StardewFishing.mkResLoc("items"),
             CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0)
                 .title(Component.translatable("itemGroup.stardewFishing"))
                 .icon(() -> new ItemStack(TRAP_BOBBER))

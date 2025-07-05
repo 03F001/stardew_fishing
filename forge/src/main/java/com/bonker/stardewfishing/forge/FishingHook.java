@@ -209,7 +209,7 @@ public class FishingHook extends com.bonker.stardewfishing.FishingHook {
 
     static class CapProvider implements ICapabilityProvider {
         static final Capability<FishingHook> CAP = CapabilityManager.get(new CapabilityToken<>() {});
-        static final ResourceLocation NAME = new ResourceLocation(StardewFishing.MODID, "hook");
+        static final ResourceLocation NAME = StardewFishing.mkResLoc("hook");
 
         private final LazyOptional<FishingHook> optional = LazyOptional.of(FishingHook::new);
 

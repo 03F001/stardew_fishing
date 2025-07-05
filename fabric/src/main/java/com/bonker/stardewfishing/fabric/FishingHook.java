@@ -37,7 +37,7 @@ public class FishingHook extends com.bonker.stardewfishing.FishingHook {
     private boolean treasureChest = false;
     private boolean goldenChest = false;
 
-    public static final ResourceLocation NAME = new ResourceLocation(StardewFishing.MODID, "hook");
+    public static final ResourceLocation NAME = StardewFishing.mkResLoc("hook");
     public static final AttachmentType<Optional<FishingHook>> HOOK = AttachmentRegistry.createDefaulted(NAME, () -> Optional.of(new FishingHook()));
 
     public static Optional<FishingHook> getFishingHook(net.minecraft.world.entity.projectile.FishingHook entity) {

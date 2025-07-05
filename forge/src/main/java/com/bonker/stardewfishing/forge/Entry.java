@@ -2,7 +2,6 @@ package com.bonker.stardewfishing.forge;
 
 import com.bonker.stardewfishing.StardewFishing;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -22,7 +21,7 @@ public class Entry {
         StardewFishing.TIDE_INSTALLED = ModList.get().isLoaded("tide");
         StardewFishing.BOBBER_ITEMS_REGISTERED = StardewFishing.AQUACULTURE_INSTALLED || StardewFishing.TIDE_INSTALLED;
 
-        StardewFishing.STARTS_MINIGAME = TagKey.create(ForgeRegistries.ITEMS.getRegistryKey(), new ResourceLocation(StardewFishing.MODID, "starts_minigame"));
+        StardewFishing.STARTS_MINIGAME = TagKey.create(ForgeRegistries.ITEMS.getRegistryKey(), StardewFishing.mkResLoc("starts_minigame"));
 
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 

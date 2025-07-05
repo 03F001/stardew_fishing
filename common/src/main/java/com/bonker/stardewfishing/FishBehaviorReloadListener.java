@@ -26,7 +26,7 @@ import java.util.Optional;
 
 public abstract class FishBehaviorReloadListener extends SimplePreparableReloadListener<Map<String, JsonObject>> {
     private static final Gson GSON_INSTANCE = new Gson();
-    private static final ResourceLocation LOCATION = new ResourceLocation(StardewFishing.MODID, "data.json");
+    private static final ResourceLocation LOCATION = StardewFishing.mkResLoc("data.json");
     private static FishBehaviorReloadListener INSTANCE;
 
     private final Map<net.minecraft.world.item.Item, FishBehavior> fishBehaviors = new HashMap<>();

@@ -3,6 +3,7 @@ package com.bonker.stardewfishing.fabric;
 import com.bonker.stardewfishing.FishBehavior;
 import com.bonker.stardewfishing.FishBehaviorReloadListener;
 import com.bonker.stardewfishing.Platform;
+import com.bonker.stardewfishing.OptionalLootItem;
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.client.FishingScreen;
@@ -48,17 +49,17 @@ public class FabricPlatform implements Platform {
     private static Config config;
 
     private final ArrayList<SoundEvent> sounds = Arrays.stream(Sound.values())
-        .map(s -> SoundEvent.createVariableRangeEvent(new ResourceLocation(StardewFishing.MODID, s.name())))
+        .map(s -> SoundEvent.createVariableRangeEvent(StardewFishing.mkResLoc(s.name())))
         .collect(Collectors.toCollection(ArrayList::new));
 
     private final LootPoolEntryType lootPoolEntryType = Registry.register(
         BuiltInRegistries.LOOT_POOL_ENTRY_TYPE,
-        new ResourceLocation(StardewFishing.MODID, "optional"),
+        StardewFishing.mkResLoc("optional"),
         new LootPoolEntryType(new OptionalLootItem.Serializer())
     );
 
-    private static final ResourceLocation START_MINIGAME_PACKET_ID = new ResourceLocation(StardewFishing.MODID, "start_minigame");
-    private static final ResourceLocation COMPLETE_MINIGAME_PACKET_ID = new ResourceLocation(StardewFishing.MODID, "complete_minigame");
+    private static final ResourceLocation START_MINIGAME_PACKET_ID = StardewFishing.mkResLoc("start_minigame");
+    private static final ResourceLocation COMPLETE_MINIGAME_PACKET_ID = StardewFishing.mkResLoc("complete_minigame");
 
     FabricFishBehaviorReloadListener fishBehaviorReloadListener = new FabricFishBehaviorReloadListener();
 
@@ -83,9 +84,9 @@ public class FabricPlatform implements Platform {
 
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(fishBehaviorReloadListener);
 
-        var registrySoundEvents = FabricRegistryBuilder.createSimple(ResourceKey.createRegistryKey(new ResourceLocation(StardewFishing.MODID, "sound_events"))).buildAndRegister();
+        var registrySoundEvents = FabricRegistryBuilder.createSimple(ResourceKey.createRegistryKey(StardewFishing.mkResLoc("sound_events"))).buildAndRegister();
         for (Sound s : Sound.values()) {
-            Registry.register(registrySoundEvents, new ResourceLocation(StardewFishing.MODID, s.name()), sounds.get(s.ordinal()));
+            Registry.register(registrySoundEvents, StardewFishing.mkResLoc(s.name()), sounds.get(s.ordinal()));
         }
 
         // todo: lootpool
@@ -152,6 +153,11 @@ public class FabricPlatform implements Platform {
             case treasure_bobber -> Items.TREASURE_BOBBER;
             case quality_bobber -> Items.QUALITY_BOBBER;
         };
+    }
+
+    @Override
+    public Item getItem(ResourceLocation itemId) {
+        return BuiltInRegistries.ITEM.get(itemId);
     }
 
     @Override
@@ -231,7 +237,7 @@ class FabricFishBehaviorReloadListener extends FishBehaviorReloadListener implem
 
     @Override
     public ResourceLocation getFabricId() {
-        return new ResourceLocation(StardewFishing.MODID, "fish_behavior_reload");
+        return StardewFishing.mkResLoc("fish_behavior_reload");
     }
 
     @Override
