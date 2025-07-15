@@ -2,16 +2,19 @@ package com.bonker.stardewfishing.forge;
 
 import com.bonker.stardewfishing.FishBehavior;
 import com.bonker.stardewfishing.FishBehaviorReloadListener;
+import com.bonker.stardewfishing.FishingHookExt;
 import com.bonker.stardewfishing.Platform;
 import com.bonker.stardewfishing.OptionalLootItem;
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.client.FishingScreen;
-import com.bonker.stardewfishing.forge.compat.AquacultureProxy;
+import com.bonker.stardewfishing.forge.compat.Aquaculture;
+import com.bonker.stardewfishing.forge.compat.QualityFood;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -19,12 +22,23 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -36,6 +50,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -90,6 +105,35 @@ public class ForgePlatform implements Platform {
             C2SCompleteMinigamePacket::handle);
     }
 
+    static class CapProvider implements ICapabilityProvider {
+        static final Capability<FishingHookExt> CAP = CapabilityManager.get(new CapabilityToken<>() {});
+        static final ResourceLocation NAME = StardewFishing.mkResLoc("hook");
+
+        private final LazyOptional<FishingHookExt> optional = LazyOptional.of(FishingHookExt::new);
+
+        @Override
+        public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+            return cap == CAP ? optional.cast() : LazyOptional.empty();
+        }
+    }
+
+    @Mod.EventBusSubscriber(modid = StardewFishing.MODID)
+    public static class ForgeBus {
+        @SubscribeEvent
+        public static void onAttachCapabilitiesPlayer(final AttachCapabilitiesEvent<Entity> event) {
+            if (event.getObject() instanceof net.minecraft.world.entity.projectile.FishingHook) {
+                if (!event.getObject().getCapability(CapProvider.CAP).isPresent()) {
+                    event.addCapability(CapProvider.NAME, new CapProvider());
+                }
+            }
+        }
+    }
+
+    @Override
+    public FishingHookExt getFishingHookExt(FishingHook hook) {
+        return hook.getCapability(CapProvider.CAP).resolve().get();
+    }
+
     @Override
     public SoundEvent getSoundEvent(Sound sound) {
         return sounds.get(sound.ordinal()).get();
@@ -109,6 +153,39 @@ public class ForgePlatform implements Platform {
     @Override
     public void completeMinigame(boolean success, double accuracy, boolean gotChest) {
         channel.send(PacketDistributor.SERVER.noArg(), new C2SCompleteMinigamePacket(success, accuracy, gotChest));
+    }
+
+    @Override
+    public void modifyRewards(List<ItemStack> rewards, double accuracy, @Nullable ItemStack fishingRod) {
+        if (!StardewFishing.QUALITY_FOOD_INSTALLED) return;
+
+        int quality = StardewFishing.platform.getQuality(accuracy);
+        if (quality < 3 && FishingHookExt.hasBobber(fishingRod, com.bonker.stardewfishing.Item.quality_bobber)) {
+            quality++;
+        }
+        for (ItemStack reward : rewards) {
+            if (reward.is(StardewFishing.STARTS_MINIGAME)) {
+                if (quality == 0 && reward.hasTag() && reward.getOrCreateTag().contains("quality_food")) {
+                    if (reward.getOrCreateTag().size() > 1) {
+                        reward.getOrCreateTag().remove("quality_food");
+                    } else {
+                        reward.setTag(null);
+                    }
+                } else if (quality > 0) {
+                    QualityFood.applyQuality(reward, quality);
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean eventItemFished(List<ItemStack> rewards, int rodDamage, FishingHook hook) {
+        return MinecraftForge.EVENT_BUS.post(new ItemFishedEvent(rewards, 1, hook));
+    }
+
+    @Override
+    public boolean isFakePlayer(ServerPlayer player) {
+        return player instanceof FakePlayer;
     }
 
     @Override
@@ -204,23 +281,23 @@ record C2SCompleteMinigamePacket(boolean success, double accuracy, boolean gotCh
         }
 
         var hook = player.fishing;
-        if (hook == null || FishingHook.getStoredRewards(hook).isEmpty()) {
+        if (hook == null /*|| FishingHookExt.getStoredRewards(hook).isEmpty()*/) {
             StardewFishing.LOGGER.warn("{} tried to complete a fishing minigame that doesn't exist", player.getScoreboardName());
             return;
         }
 
         contextSupplier.get().enqueueWork(() -> {
-            InteractionHand hand = com.bonker.stardewfishing.FishingHook.getRodHand(player);
+            InteractionHand hand = FishingHookExt.getRodHand(player);
             if (hand == null) {
-                FishingHook.endMinigame(player, false, 0, gotChest, null);
+                FishingHookExt.endMinigame(player, false, 0, gotChest, null);
                 StardewFishing.LOGGER.warn("{} tried to complete a fishing minigame without a fishing rod", player.getScoreboardName());
             } else {
                 ItemStack fishingRod = player.getItemInHand(hand);
-                FishingHook.endMinigame(player, success, accuracy, gotChest, fishingRod);
+                FishingHookExt.endMinigame(player, success, accuracy, gotChest, fishingRod);
                 fishingRod.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
 
                 if (StardewFishing.AQUACULTURE_INSTALLED) {
-                    AquacultureProxy.damageEquippedBobber(fishingRod, player);
+                    Aquaculture.damageEquippedBobber(fishingRod, player);
                 }
             }
         });

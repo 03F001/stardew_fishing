@@ -1,10 +1,11 @@
 package com.bonker.stardewfishing.fabric.mixin;
 
+import com.bonker.stardewfishing.FishingHookExt;
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -21,18 +22,46 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
 
-@Mixin(FishingHook.class)
+@Mixin(value = FishingHook.class)
 public abstract class FishingHookMixin extends Entity implements FishingHookAccessor {
     private FishingHookMixin(EntityType<? extends Projectile> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
 
     @Inject(
-        method = "catchingFish",
-        at = @At(value = "HEAD"), cancellable = true)
+        method = "retrieve",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/item/ItemEntity;<init>(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V"),
+        locals = LocalCapture.CAPTURE_FAILSOFT,
+        cancellable = true)
+    public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir,
+                         net.minecraft.world.entity.player.Player player,
+                         int i,
+                         net.minecraft.world.level.storage.loot.LootParams lootparams,
+                         net.minecraft.world.level.storage.loot.LootTable loottable,
+                         List<ItemStack> list)
+    {
+        FishingHook hook = (FishingHook) (Object) this;
+        ServerPlayer serverPlayer = (ServerPlayer) hook.getPlayerOwner();
+        if (serverPlayer == null) return;
+
+        if (list.stream().anyMatch(stack -> stack.is(StardewFishing.STARTS_MINIGAME))) {
+            FishingHookExt.getStoredRewards(hook).addAll(list);
+            if (FishingHookExt.startMinigame(serverPlayer)) {
+                cir.cancel();
+            }
+        } else {
+            FishingHookExt.modifyRewards(list, 0, null);
+            serverPlayer.level().playSound(null, serverPlayer, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+    }
+
+    @Inject(method = "catchingFish", at = @At(value = "HEAD"), cancellable = true)
     private void cancel_catchingFish(BlockPos pPos, CallbackInfo ci) {
         FishingHook hook = (FishingHook) (Object) this;
 
@@ -47,37 +76,19 @@ public abstract class FishingHookMixin extends Entity implements FishingHookAcce
             setTimeUntilLured(time);
         }
 
-        if (com.bonker.stardewfishing.fabric.FishingHook.getStoredRewards(hook).map(list -> !list.isEmpty()).orElse(false)) {
+        if (!FishingHookExt.getStoredRewards(hook).isEmpty()) {
             ci.cancel();
-        }
-    }
-
-    @Inject(
-        method = "retrieve",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/item/ItemEntity;<init>(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V"),
-        cancellable = true)
-    public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, @Local List<ItemStack> items) {
-        FishingHook hook = (FishingHook) (Object) this;
-        ServerPlayer player = (ServerPlayer) hook.getPlayerOwner();
-        if (player == null) return;
-
-        if (items.stream().anyMatch(stack -> stack.is(StardewFishing.STARTS_MINIGAME))) {
-            com.bonker.stardewfishing.fabric.FishingHook.getStoredRewards(hook).ifPresent(rewards -> rewards.addAll(items));
-            if (com.bonker.stardewfishing.fabric.FishingHook.startMinigame(player)) {
-                cir.cancel();
-            }
-        }
-        else {
-            com.bonker.stardewfishing.fabric.FishingHook.modifyRewards(items, 0, null);
-            player.level().playSound(null, player, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
         }
     }
 }
 
 @Mixin(FishingHook.class)
 interface FishingHookAccessor {
+    @Accessor("DATA_BITING")
+    static EntityDataAccessor<Boolean> getDataBiting() {
+        throw new AssertionError("Untransformed accessor");
+    }
+
     @Accessor
     int getNibble();
 

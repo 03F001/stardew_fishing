@@ -1,4 +1,4 @@
-package com.bonker.stardewfishing.fabric.mixin;
+package com.bonker.stardewfishing.forge.mixin;
 
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;

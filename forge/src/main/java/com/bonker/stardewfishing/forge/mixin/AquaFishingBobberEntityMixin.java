@@ -1,9 +1,8 @@
 package com.bonker.stardewfishing.forge.mixin;
 
+import com.bonker.stardewfishing.FishingHookExt;
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
-
-import com.llamalad7.mixinextras.sugar.Local;
 
 import com.teammetallurgy.aquaculture.entity.AquaFishingBobberEntity;
 import com.teammetallurgy.aquaculture.init.AquaSounds;
@@ -33,6 +32,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
 
@@ -60,28 +60,30 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
             setTimeUntilLured(time);
         }
 
-        if (com.bonker.stardewfishing.forge.FishingHook.getStoredRewards(this).isEmpty()) {
+        if (!FishingHookExt.getStoredRewards(this).isEmpty()) {
             ci.cancel();
         }
     }
 
     @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z",
-                    ordinal = 0),
-            cancellable = true)
-    public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, @Local List<ItemStack> items, @Local LootParams lootParams, @Local ServerLevel serverLevel) {
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z",
+            ordinal = 0),
+        locals = LocalCapture.CAPTURE_FAILSOFT,
+        cancellable = true)
+    public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, List<ItemStack> items, LootParams lootParams, ServerLevel serverLevel) {
         AquaFishingBobberEntity hook = (AquaFishingBobberEntity) (Object) this;
         ServerPlayer player = (ServerPlayer) hook.getPlayerOwner();
         if (player == null) return;
 
         if (items.stream().anyMatch(stack -> stack.is(StardewFishing.STARTS_MINIGAME))) {
-            com.bonker.stardewfishing.forge.FishingHook.getStoredRewards(hook).ifPresent(rewards -> rewards.addAll(items));
+            FishingHookExt.getStoredRewards(hook).addAll(items);
             if (hook.hasHook() && hook.getHook().getDoubleCatchChance() > 0.0 && this.random.nextDouble() <= hook.getHook().getDoubleCatchChance()) {
                 List<ItemStack> doubleLoot = getLoot(lootParams, serverLevel);
                 if (!doubleLoot.isEmpty()) {
                     MinecraftForge.EVENT_BUS.post(new ItemFishedEvent(doubleLoot, 0, this));
-                    com.bonker.stardewfishing.forge.FishingHook.getStoredRewards(hook).ifPresent(rewards -> rewards.addAll(doubleLoot));
+                    FishingHookExt.getStoredRewards(hook).addAll(doubleLoot);
                     playSound(SoundEvents.FISHING_BOBBER_SPLASH, 0.25F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
                 }
             }
@@ -99,11 +101,11 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
                 }
             }
 
-            if (com.bonker.stardewfishing.forge.FishingHook.startMinigame(player)) {
+            if (FishingHookExt.startMinigame(player)) {
                 cir.cancel();
             }
         } else {
-            com.bonker.stardewfishing.forge.FishingHook.modifyRewards(items, 0, null);
+            FishingHookExt.modifyRewards(items, 0, null);
             player.level().playSound(null, player, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
         }
     }

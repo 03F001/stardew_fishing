@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
@@ -15,8 +16,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public interface Platform
-{
+public interface Platform {
+    FishingHookExt getFishingHookExt(FishingHook hook);
+
     SoundEvent getSoundEvent(Sound sound);
 
     LootPoolEntryType getLootPoolEntryType();
@@ -24,6 +26,10 @@ public interface Platform
     void startMinigame(ServerPlayer player, ItemStack fish, boolean treasureChest, boolean goldenChest);
     void completeMinigame(boolean success, double accuracy, boolean gotChest);
 
+    void modifyRewards(List<ItemStack> rewards, double accuracy, @Nullable ItemStack fishingRod);
+    boolean eventItemFished(List<ItemStack> rewards, int rodDamage, FishingHook hook);
+
+    boolean isFakePlayer(ServerPlayer player);
     FishBehavior getFishBehavior(@Nullable ItemStack stack);
     int getQuality(double accuracy);
     double getMultiplier(double accuracy, boolean qualityBobber);

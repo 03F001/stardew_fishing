@@ -1,17 +1,16 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.bonker.stardewfishing.forge.mixin",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "stardew_fishing.refmap.json",
+  "package": "com.bonker.stardewfishing.forge.mixin",
   "mixins": [
     "AquaFishingBobberEntityMixin",
     "ArmorDyeRecipeMixin",
     "FishingHookAccessor",
     "FishingHookMixin",
+    "FishingRodItemMixin",
     "LavaFishingBobberEntityMixin"
   ],
-  "client": [],
   "injectors": {
     "defaultRequire": 1
   }

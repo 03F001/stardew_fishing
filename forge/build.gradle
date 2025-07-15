@@ -16,6 +16,20 @@ mixin {
     config "${mod_id}.mixins.json"
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs += project(':common').layout.buildDirectory.dir('generated')
+            srcDirs += project(':common').file('src/main/java')
+        }
+
+        resources {
+            srcDir 'src/generated/resources'
+            srcDirs += project(':common').file('src/main/resources')
+        }
+    }
+}
+
 minecraft {
     mappings channel: mapping_channel, version: mapping_version
     copyIdeResources = true
@@ -29,7 +43,7 @@ minecraft {
         configureEach {
             workingDirectory project.file('run')
 
-            jvmArg '-XX:+AllowEnhancedClassRedefinition'
+            //jvmArg '-XX:+AllowEnhancedClassRedefinition'
 
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
@@ -78,36 +92,12 @@ minecraft {
     }
 }
 
-def genVersion = tasks.register('genVersion', Copy) {
-    from('src/main/java') {
-        include 'com/bonker/stardewfishing/Version.java.template'
-        rename '.template', ''
-    }
-    into layout.buildDirectory.dir("generated/sources/$name/java")
-    expand project.properties
-}
-
-sourceSets {
-    main {
-        java {
-            srcDir genVersion
-            srcDirs += project(':common').file('src/main/java')
-        }
-
-        resources {
-            srcDir 'src/generated/resources'
-            srcDirs += project(':common').file('src/main/resources')
-        }
-    }
-}
-
 repositories {
     // local
     // - netherdepthsupgrade-3.1.5-1.20.jar
     // - quality_food-1.20.1-1.7.3-all.jar
     // - Tide-forge-1.20.1-1.5.0.jar
     flatDir {
-        dirs project(':common').file('libs')
         dir 'libs'
     }
 
@@ -153,7 +143,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':common')
+    compileOnly project(':common')
     minecraft group: 'net.minecraftforge', name: 'forge', version: "${minecraft_version}-${forge_version}"
 
     implementation group: 'org.jetbrains', name: 'annotations', version: '16.0.3'
@@ -161,17 +151,11 @@ dependencies {
     // sponge mixin
     annotationProcessor group: 'org.spongepowered', name: 'mixin', version: '0.8.5', classifier: 'processor'
 
-    // mixinextras
-    compileOnly annotationProcessor(group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.4.0')
-    implementation jarJar(group: 'io.github.llamalad7', name: 'mixinextras-forge', version: '0.4.0') {
-        jarJar.ranged(it, '[0.4.0,)')
-    }
-
     // quality food
-    implementation fg.deobf(group: 'blank', name: 'quality_food-1.20.1', version: '2.2.5', classifier: 'all')
+    compileOnly group: 'blank', name: 'quality_food-1.20.1', version: '2.2.5', classifier: 'all'
 
     // tide
-    implementation fg.deobf(group: 'blank', name: 'Tide-forge-1.20.1', version: '1.5.0')
+    compileOnly group: 'blank', name: 'Tide-forge-1.20.1', version: '1.6.2'
 
     // aquaculture 2
     compileOnly group: 'com.teammetallurgy.aquaculture', name: "aquaculture2_${minecraft_version}", version: "${minecraft_version}-2.5.2"
@@ -184,10 +168,10 @@ dependencies {
     compileOnly group: 'com.eliotlash.mclib', name: 'mclib', version: '20'
 
     // cloth config (for tide)
-    runtimeOnly group: 'me.shedaniel.cloth', name: 'cloth-config-forge', version: '11.1.136'
+    //runtimeOnly group: 'me.shedaniel.cloth', name: 'cloth-config-forge', version: '11.1.136'
 
     // jei
-    runtimeOnly fg.deobf(group: 'mezz.jei', name: "jei-${minecraft_version}-forge", version: '15.12.2.51')
+    //runtimeOnly fg.deobf(group: 'mezz.jei', name: "jei-${minecraft_version}-forge", version: '15.12.2.51')
 }
 
 tasks.named('processResources', ProcessResources).configure {

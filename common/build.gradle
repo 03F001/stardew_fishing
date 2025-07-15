@@ -1,7 +1,9 @@
 plugins {
     id 'java-library'
-    id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT'
 }
+
+compileJava.enabled = false
+compileTestJava.enabled = false
 
 def genVersion = tasks.register('genVersion', Copy) {
     from('src/main/java') {
@@ -14,32 +16,4 @@ def genVersion = tasks.register('genVersion', Copy) {
 
 sourceSets.main.java {
     srcDir genVersion
-}
-
-minecraft {
-    version(minecraft_version)
-    if(file("src/main/resources/${mod_id}.accesswidener").exists()){
-        accessWideners(file("src/main/resources/${mod_id}.accesswidener"))
-    }
-}
-
-repositories {
-    // local
-    // - netherdepthsupgrade-3.1.5-1.20.jar
-    // - quality_food-1.20.1-1.7.3-all.jar
-    // - Tide-forge-1.20.1-1.5.0.jar
-    flatDir { dir 'libs' }
-}
-
-dependencies {
-    compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'
-
-    // quality food
-    api group: 'blank', name: 'quality_food-1.20.1', version: '2.2.5', classifier: 'all'
-
-    // tide
-    api group: 'blank', name: 'Tide-forge-1.20.1', version: '1.5.0'
-
-    // nether depths
-    compileOnly group: 'blank', name: 'netherdepthsupgrade-3.1.5', version: '1.20'
 }

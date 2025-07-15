@@ -1,9 +1,8 @@
 package com.bonker.stardewfishing.forge.mixin;
 
+import com.bonker.stardewfishing.FishingHookExt;
 import com.bonker.stardewfishing.Sound;
 import com.bonker.stardewfishing.StardewFishing;
-
-import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
 
@@ -51,26 +51,28 @@ public abstract class LavaFishingBobberEntityMixin extends FishingHook {
             timeUntilLured = Math.max(1, (int) (timeUntilLured * StardewFishing.platform.getBiteTimeMultiplier()));
         }
 
-        if (com.bonker.stardewfishing.forge.FishingHook.getStoredRewards(this).isEmpty()) {
+        if (!FishingHookExt.getStoredRewards(this).isEmpty()) {
             ci.cancel();
         }
     }
 
     @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"),
-            cancellable = true)
-    public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, @Local List<ItemStack> items) {
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"),
+        locals = LocalCapture.CAPTURE_FAILSOFT,
+        cancellable = true)
+    public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, List<ItemStack> items) {
         ServerPlayer player = (ServerPlayer) getPlayerOwner();
         if (player == null) return;
 
         if (items.stream().anyMatch(stack -> stack.is(StardewFishing.STARTS_MINIGAME))) {
-            com.bonker.stardewfishing.forge.FishingHook.getStoredRewards(this).ifPresent(rewards -> rewards.addAll(items));
-            if (com.bonker.stardewfishing.forge.FishingHook.startMinigame(player)) {
+            FishingHookExt.getStoredRewards(this).addAll(items);
+            if (FishingHookExt.startMinigame(player)) {
                 cir.cancel();
             }
         } else {
-            com.bonker.stardewfishing.forge.FishingHook.modifyRewards(items, 0, null);
+            FishingHookExt.modifyRewards(items, 0, null);
             player.level().playSound(null, player, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
         }
     }

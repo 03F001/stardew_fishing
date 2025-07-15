@@ -1,6 +1,7 @@
 package com.bonker.stardewfishing.forge.compat;
 
 import com.teammetallurgy.aquaculture.item.AquaFishingRodItem;
+
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -11,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class AquacultureProxy {
+public class Aquaculture {
     public static void damageEquippedBobber(ItemStack fishingRod, ServerPlayer player) {
         ItemStackHandler handler = AquaFishingRodItem.getHandler(fishingRod);
         ItemStack bobber = handler.getStackInSlot(3);

@@ -1,14 +1,11 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.bonker.stardewfishing.fabric.mixin",
   "compatibilityLevel": "JAVA_17",
+  "package": "com.bonker.stardewfishing.fabric.mixin",
   "mixins": [
-    "FishingHookMixin"
-  ],
-  "client": [
-    "FishingHookMixin",
     "FishingHookAccessor",
+    "FishingHookMixin",
     "FishingRodItemMixin"
   ],
   "injectors": {

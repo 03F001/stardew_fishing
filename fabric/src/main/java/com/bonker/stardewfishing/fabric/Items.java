@@ -1,7 +1,7 @@
 package com.bonker.stardewfishing.fabric;
 
 import com.bonker.stardewfishing.StardewFishing;
-import com.bonker.stardewfishing.compat.TideProxy;
+import com.bonker.stardewfishing.compat.Tide;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
@@ -72,7 +72,7 @@ public class Items {
 
         // called by tide
         public ResourceLocation getTextureLocation() {
-            return TideProxy.DEFAULT_BOBBER_TEXTURE;
+            return Tide.DEFAULT_BOBBER_TEXTURE;
         }
 
         // called by tide
@@ -91,7 +91,7 @@ public class Items {
 
     public static ItemStack getBobber(ItemStack fishingRod) {
         if (StardewFishing.TIDE_INSTALLED) {
-            return TideProxy.getBobber(fishingRod);
+            return Tide.getBobber(fishingRod);
         } else {
             return ItemStack.EMPTY;
         }

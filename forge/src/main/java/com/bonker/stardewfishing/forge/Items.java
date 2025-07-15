@@ -1,8 +1,8 @@
 package com.bonker.stardewfishing.forge;
 
 import com.bonker.stardewfishing.StardewFishing;
-import com.bonker.stardewfishing.forge.compat.AquacultureProxy;
-import com.bonker.stardewfishing.compat.TideProxy;
+import com.bonker.stardewfishing.forge.compat.Aquaculture;
+import com.bonker.stardewfishing.compat.Tide;
 
 import com.google.common.collect.ImmutableList;
 
@@ -66,7 +66,7 @@ public class Items {
 
         // called by tide
         public ResourceLocation getTextureLocation() {
-            return TideProxy.DEFAULT_BOBBER_TEXTURE;
+            return Tide.DEFAULT_BOBBER_TEXTURE;
         }
 
         // called by tide
@@ -84,10 +84,10 @@ public class Items {
     }
 
     public static ItemStack getBobber(ItemStack fishingRod) {
-        if (StardewFishing.AQUACULTURE_INSTALLED && AquacultureProxy.isAquaRod(fishingRod)) {
-            return AquacultureProxy.getBobber(fishingRod);
+        if (StardewFishing.AQUACULTURE_INSTALLED && Aquaculture.isAquaRod(fishingRod)) {
+            return Aquaculture.getBobber(fishingRod);
         } else if (StardewFishing.TIDE_INSTALLED) {
-            return TideProxy.getBobber(fishingRod);
+            return Tide.getBobber(fishingRod);
         } else {
             return ItemStack.EMPTY;
         }
