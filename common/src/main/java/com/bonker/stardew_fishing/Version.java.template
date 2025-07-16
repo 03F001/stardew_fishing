@@ -1,0 +1,11 @@
+package com.bonker.stardew_fishing;
+
+public final class Version {
+    public static final String id          = "${mod_id}";
+    public static final String name        = "${mod_name}";
+    public static final String license     = "${license}";
+    public static final String version     = "${version}";
+    public static final String group       = "${group}";
+    public static final String authors     = "${authors}";
+    public static final String description = "${description}";
+}

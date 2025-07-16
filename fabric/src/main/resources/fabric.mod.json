@@ -13,10 +13,10 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "com.bonker.stardewfishing.fabric.Client"
+      "com.bonker.stardew_fishing.fabric.Client"
     ],
     "main": [
-      "com.bonker.stardewfishing.fabric.Entry"
+      "com.bonker.stardew_fishing.fabric.Entry"
     ]
   },
   "mixins": [

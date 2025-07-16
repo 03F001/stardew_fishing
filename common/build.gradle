@@ -7,7 +7,7 @@ compileTestJava.enabled = false
 
 def genVersion = tasks.register('genVersion', Copy) {
     from('src/main/java') {
-        include 'com/bonker/stardewfishing/Version.java.template'
+        include 'com/bonker/stardew_fishing/Version.java.template'
         rename '.template', ''
     }
     into layout.buildDirectory.dir("generated/sources/$name/java")

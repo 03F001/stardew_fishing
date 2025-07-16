@@ -7,6 +7,7 @@ plugins {
 base {
     group = group
     version = version
+    archivesName = mod_id
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(java_version)
@@ -61,7 +62,6 @@ minecraft {
         }
 
         client {
-            property 'forge.enabledGameTestNamespaces', mod_id
         }
 
         client2 {
@@ -149,7 +149,7 @@ dependencies {
     implementation group: 'org.jetbrains', name: 'annotations', version: '16.0.3'
 
     // sponge mixin
-    annotationProcessor group: 'org.spongepowered', name: 'mixin', version: '0.8.5', classifier: 'processor'
+    implementation annotationProcessor(group: 'org.spongepowered', name: 'mixin', version: '0.8.5', classifier: 'processor')
 
     // quality food
     compileOnly group: 'blank', name: 'quality_food-1.20.1', version: '2.2.5', classifier: 'all'
@@ -166,12 +166,6 @@ dependencies {
     // geckolib (for nether depths)
     compileOnly group: 'software.bernie.geckolib', name: "geckolib-forge-${minecraft_version}", version: '4.4.6'
     compileOnly group: 'com.eliotlash.mclib', name: 'mclib', version: '20'
-
-    // cloth config (for tide)
-    //runtimeOnly group: 'me.shedaniel.cloth', name: 'cloth-config-forge', version: '11.1.136'
-
-    // jei
-    //runtimeOnly fg.deobf(group: 'mezz.jei', name: "jei-${minecraft_version}-forge", version: '15.12.2.51')
 }
 
 tasks.named('processResources', ProcessResources).configure {
