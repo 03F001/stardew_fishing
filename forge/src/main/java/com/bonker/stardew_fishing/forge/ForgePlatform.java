@@ -21,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -145,9 +146,10 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public void startMinigame(ServerPlayer player, ItemStack fish, boolean treasureChest, boolean goldenChest) {
+    public void startMinigame(ServerPlayer player, ItemStack fish, API.Chest chest) {
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), getSoundEvent(Sound.fish_hit), SoundSource.NEUTRAL, 1.0F, 1.0F);
         channel.send(PacketDistributor.PLAYER.with(() -> player),
-            new S2CStartMinigamePacket(getFishBehavior(fish), fish, treasureChest, goldenChest));
+            new S2CStartMinigamePacket(getFishBehavior(fish), fish, chest));
     }
 
     @Override
@@ -245,20 +247,19 @@ public class ForgePlatform implements Platform {
     }
 }
 
-record S2CStartMinigamePacket(FishBehavior behavior, ItemStack fish, boolean treasureChest, boolean goldenChest) {
+record S2CStartMinigamePacket(FishBehavior behavior, ItemStack fish, API.Chest chest) {
     public S2CStartMinigamePacket(FriendlyByteBuf buf) {
-        this(new FishBehavior(buf), buf.readItem(), buf.readBoolean(), buf.readBoolean());
+        this(new FishBehavior(buf), buf.readItem(), API.Chest.values()[buf.readByte()]);
     }
 
     public void encode(FriendlyByteBuf buf) {
         behavior.writeToBuffer(buf);
         buf.writeItem(fish);
-        buf.writeBoolean(treasureChest);
-        buf.writeBoolean(goldenChest);
+        buf.writeByte(chest.ordinal());
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        contextSupplier.get().enqueueWork(() -> Minecraft.getInstance().setScreen(new FishingScreen(behavior, fish, treasureChest, goldenChest)));
+        contextSupplier.get().enqueueWork(() -> Minecraft.getInstance().setScreen(new FishingScreen(behavior, fish, chest)));
     }
 }
 
@@ -281,7 +282,7 @@ record C2SCompleteMinigamePacket(boolean success, double accuracy, boolean gotCh
         }
 
         var hook = player.fishing;
-        if (hook == null /*|| FishingHookExt.getStoredRewards(hook).isEmpty()*/) {
+        if (hook == null || FishingHookExt.getStoredRewards(hook).isEmpty()) {
             StardewFishing.LOGGER.warn("{} tried to complete a fishing minigame that doesn't exist", player.getScoreboardName());
             return;
         }

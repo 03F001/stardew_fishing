@@ -38,7 +38,8 @@ public class FishingRodItemMixin {
 
     @Redirect(
         method = "use",
-        at = @At(value = "INVOKE",
+        at = @At(
+            value = "INVOKE",
             target = "Lnet/minecraft/world/level/Level;playSound(Lnet/minecraft/world/entity/player/Player;DDDLnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FF)V",
             ordinal = 1))
     private void redirectPlaySoundSecond(Level instance, Player player, double x, double y, double z, SoundEvent sound, SoundSource category, float volume, float pitch) {

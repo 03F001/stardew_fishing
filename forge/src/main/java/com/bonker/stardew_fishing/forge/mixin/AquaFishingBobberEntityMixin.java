@@ -1,5 +1,6 @@
 package com.bonker.stardew_fishing.forge.mixin;
 
+import com.bonker.stardew_fishing.api.StardewFishingAPI;
 import com.bonker.stardew_fishing.FishingHookExt;
 import com.bonker.stardew_fishing.Sound;
 import com.bonker.stardew_fishing.StardewFishing;
@@ -47,7 +48,10 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
         super(pEntityType, pLevel);
     }
 
-    @Inject(method = "catchingFish(Lnet/minecraft/core/BlockPos;)V", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(
+        method = "catchingFish(Lnet/minecraft/core/BlockPos;)V",
+        at = @At(value = "HEAD"),
+        cancellable = true)
     private void cancel_catchingFish(BlockPos pPos, CallbackInfo ci) {
         if (getNibble() <= 0 && getTimeUntilHooked() <= 0 && getTimeUntilLured() <= 0) {
             // replicate vanilla
@@ -65,7 +69,8 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
         }
     }
 
-    @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I",
+    @Inject(
+        method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z",
@@ -77,7 +82,9 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
         ServerPlayer player = (ServerPlayer) hook.getPlayerOwner();
         if (player == null) return;
 
-        if (items.stream().anyMatch(stack -> stack.is(StardewFishing.STARTS_MINIGAME))) {
+        for (var item : items) {
+            if (!StardewFishingAPI.isStartMinigame(item)) continue;
+
             FishingHookExt.getStoredRewards(hook).addAll(items);
             if (hook.hasHook() && hook.getHook().getDoubleCatchChance() > 0.0 && this.random.nextDouble() <= hook.getHook().getDoubleCatchChance()) {
                 List<ItemStack> doubleLoot = getLoot(lootParams, serverLevel);
@@ -101,12 +108,11 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
                 }
             }
 
-            if (FishingHookExt.startMinigame(player)) {
-                cir.cancel();
-            }
-        } else {
-            FishingHookExt.modifyRewards(items, 0, null);
-            player.level().playSound(null, player, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
+            StardewFishingAPI.startMinigame(player, item, StardewFishingAPI.rollChest(player));
+            cir.cancel();
         }
+
+        FishingHookExt.modifyRewards(items, 0, null);
+        player.level().playSound(null, player, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 }

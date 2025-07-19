@@ -31,26 +31,9 @@ public abstract class FishingHookMixin extends Entity implements FishingHookAcce
     }
 
     @Inject(
-        method = "retrieve",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/item/ItemEntity;<init>(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V"),
-        locals = LocalCapture.CAPTURE_FAILSOFT,
+        method = "catchingFish",
+        at = @At(value = "HEAD"),
         cancellable = true)
-    public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir,
-        net.minecraft.world.entity.player.Player player,
-        int i,
-        net.minecraftforge.event.entity.player.ItemFishedEvent event,
-        net.minecraft.world.level.storage.loot.LootParams lootparams,
-        net.minecraft.world.level.storage.loot.LootTable loottable,
-        List<ItemStack> list)
-    {
-        FishingHook hook = (FishingHook) (Object) this;
-        if (StardewFishingAPI.tryStart(hook, list))
-            cir.cancel();
-    }
-
-    @Inject(method = "catchingFish", at = @At(value = "HEAD"), cancellable = true)
     private void cancel_catchingFish(BlockPos pPos, CallbackInfo ci) {
         FishingHook hook = (FishingHook) (Object) this;
 
@@ -68,6 +51,26 @@ public abstract class FishingHookMixin extends Entity implements FishingHookAcce
         if (!FishingHookExt.getStoredRewards(hook).isEmpty()) {
             ci.cancel();
         }
+    }
+
+    @Inject(
+        method = "retrieve",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"),
+        locals = LocalCapture.CAPTURE_FAILSOFT,
+        cancellable = true)
+    public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir,
+        net.minecraft.world.entity.player.Player player,
+        int i,
+        net.minecraftforge.event.entity.player.ItemFishedEvent event,
+        net.minecraft.world.level.storage.loot.LootParams lootparams,
+        net.minecraft.world.level.storage.loot.LootTable loottable,
+        List<ItemStack> list)
+    {
+        FishingHook hook = (FishingHook) (Object) this;
+        if (StardewFishingAPI.detour_FishingHook$retrieve(pStack, hook, list))
+            cir.cancel();
     }
 }
 

@@ -14,8 +14,11 @@ public abstract class ArmorDyeRecipeMixin {
     /**
      * Prevents BobberItems from being dyed in a crafting table.
      */
-    @Redirect(method = "matches(Lnet/minecraft/world/inventory/CraftingContainer;Lnet/minecraft/world/level/Level;)Z",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"))
+    @Redirect(
+        method = "matches(Lnet/minecraft/world/inventory/CraftingContainer;Lnet/minecraft/world/level/Level;)Z",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"))
     private boolean stardewFishing_isEmpty(ItemStack instance) {
         if (instance.getItem() instanceof Items.BobberItem) {
             return true;

@@ -1,5 +1,7 @@
 package com.bonker.stardew_fishing;
 
+import com.bonker.stardew_fishing.api.API;
+
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,43 +26,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FishingHookExt {
-    private final ArrayList<ItemStack> rewards = new ArrayList<>();
-    private boolean treasureChest = false;
-    private boolean goldenChest = false;
-
+public class FishingHookExt extends API.FishingHookExt {
     public static ArrayList<ItemStack> getStoredRewards(FishingHook hook) {
         return StardewFishing.platform.getFishingHookExt(hook).rewards;
-    }
-
-    public static boolean startMinigame(ServerPlayer player) {
-        if (player.fishing == null || StardewFishing.platform.isFakePlayer(player)) return false;
-
-        var ext = StardewFishing.platform.getFishingHookExt(player.fishing);
-        ItemStack fish = ext.rewards.stream()
-            .filter(stack -> stack.is(StardewFishing.STARTS_MINIGAME))
-            .findFirst()
-            .orElseThrow();
-
-        double chestChance = StardewFishing.platform.getTreasureChestChance();
-        if (StardewFishing.BOBBER_ITEMS_REGISTERED && chestChance < 1) {
-            InteractionHand hand = getRodHand(player);
-            if (hand != null) {
-                if (hasBobber(player.getItemInHand(hand), Item.treasure_bobber)) {
-                    chestChance += 0.05;
-                }
-            }
-        }
-
-        if (player.getRandom().nextFloat() < chestChance) {
-            ext.treasureChest = true;
-            if (player.getRandom().nextFloat() < StardewFishing.platform.getGoldenChestChance()) {
-                ext.goldenChest = true;
-            }
-        }
-
-        StardewFishing.platform.startMinigame(player, fish, ext.treasureChest, ext.goldenChest);
-        return true;
     }
 
     public static void endMinigame(Player player, boolean success, double accuracy, boolean gotChest, @Nullable ItemStack fishingRod) {
@@ -93,8 +61,8 @@ public class FishingHookExt {
     }
 
     public void giveRewards(FishingHook hook, ServerPlayer player, double accuracy, boolean gotChest) {
-        if (treasureChest && gotChest) {
-            rewards.addAll(getTreasureChestLoot(player.serverLevel(), goldenChest));
+        if (chest != API.Chest.none && gotChest) {
+            rewards.addAll(getTreasureChestLoot(player.serverLevel(), chest == API.Chest.golden));
         }
 
         if (rewards.isEmpty()) {

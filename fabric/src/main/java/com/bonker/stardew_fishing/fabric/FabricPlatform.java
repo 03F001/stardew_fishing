@@ -1,5 +1,7 @@
 package com.bonker.stardew_fishing.fabric;
 
+import com.bonker.stardew_fishing.api.API;
+
 import com.bonker.stardew_fishing.FishBehavior;
 import com.bonker.stardew_fishing.FishBehaviorReloadListener;
 import com.bonker.stardew_fishing.FishingHookExt;
@@ -78,7 +80,7 @@ public class FabricPlatform implements Platform {
             START_MINIGAME_PACKET_ID,
             (client, handler, buf, responseSender) -> {
                 var packet = new S2CStartMinigamePacket(buf);
-                client.execute(() -> Minecraft.getInstance().setScreen(new FishingScreen(packet.behavior(), packet.fish(), packet.treasureChest(), packet.goldenChest())));
+                client.execute(() -> Minecraft.getInstance().setScreen(new FishingScreen(packet.behavior(), packet.fish(), packet.chest())));
             });
 
         ServerPlayNetworking.registerGlobalReceiver(
@@ -113,8 +115,8 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public void startMinigame(ServerPlayer player, ItemStack fish, boolean treasureChest, boolean goldenChest) {
-        var packet = new S2CStartMinigamePacket(getFishBehavior(fish), fish, treasureChest, goldenChest);
+    public void startMinigame(ServerPlayer player, ItemStack fish, API.Chest chest) {
+        var packet = new S2CStartMinigamePacket(getFishBehavior(fish), fish, chest);
         var buf = new FriendlyByteBuf(Unpooled.buffer());
         packet.encode(buf);
         ServerPlayNetworking.send(player, START_MINIGAME_PACKET_ID, buf);
@@ -201,20 +203,19 @@ public class FabricPlatform implements Platform {
     }
 }
 
-record S2CStartMinigamePacket(FishBehavior behavior, ItemStack fish, boolean treasureChest, boolean goldenChest) {
+record S2CStartMinigamePacket(FishBehavior behavior, ItemStack fish, API.Chest chest) {
     public S2CStartMinigamePacket(FriendlyByteBuf buf) {
-        this(new FishBehavior(buf), buf.readItem(), buf.readBoolean(), buf.readBoolean());
+        this(new FishBehavior(buf), buf.readItem(), API.Chest.values()[buf.readByte()]);
     }
 
     public void encode(FriendlyByteBuf buf) {
         behavior.writeToBuffer(buf);
         buf.writeItem(fish);
-        buf.writeBoolean(treasureChest);
-        buf.writeBoolean(goldenChest);
+        buf.writeByte(chest.ordinal());
     }
 
     public void handle() {
-        Minecraft.getInstance().setScreen(new FishingScreen(behavior, fish, treasureChest, goldenChest));
+        Minecraft.getInstance().setScreen(new FishingScreen(behavior, fish, chest));
     }
 }
 

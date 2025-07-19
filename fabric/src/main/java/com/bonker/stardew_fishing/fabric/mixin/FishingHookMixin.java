@@ -4,6 +4,7 @@ import com.bonker.stardew_fishing.FishingHookExt;
 import com.bonker.stardew_fishing.Sound;
 import com.bonker.stardew_fishing.StardewFishing;
 
+import com.bonker.stardew_fishing.api.StardewFishingAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,24 +41,18 @@ public abstract class FishingHookMixin extends Entity implements FishingHookAcce
         locals = LocalCapture.CAPTURE_FAILSOFT,
         cancellable = true)
     public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir,
-                         net.minecraft.world.entity.player.Player player,
-                         int i,
-                         net.minecraft.world.level.storage.loot.LootParams lootparams,
-                         net.minecraft.world.level.storage.loot.LootTable loottable,
-                         List<ItemStack> list)
+        net.minecraft.world.entity.player.Player player,
+        int i,
+        net.minecraft.world.level.storage.loot.LootParams lootparams,
+        net.minecraft.world.level.storage.loot.LootTable loottable,
+        List<ItemStack> list)
     {
         FishingHook hook = (FishingHook) (Object) this;
         ServerPlayer serverPlayer = (ServerPlayer) hook.getPlayerOwner();
         if (serverPlayer == null) return;
 
-        if (list.stream().anyMatch(stack -> stack.is(StardewFishing.STARTS_MINIGAME))) {
-            FishingHookExt.getStoredRewards(hook).addAll(list);
-            if (FishingHookExt.startMinigame(serverPlayer)) {
-                cir.cancel();
-            }
-        } else {
-            FishingHookExt.modifyRewards(list, 0, null);
-            serverPlayer.level().playSound(null, serverPlayer, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
+        if (StardewFishingAPI.detour_FishingHook$retrieve(pStack, hook, list)) {
+            cir.cancel();
         }
     }
 

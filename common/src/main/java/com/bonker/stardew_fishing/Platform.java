@@ -1,5 +1,7 @@
 package com.bonker.stardew_fishing;
 
+import com.bonker.stardew_fishing.api.API;
+
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -23,7 +25,7 @@ public interface Platform {
 
     LootPoolEntryType getLootPoolEntryType();
 
-    void startMinigame(ServerPlayer player, ItemStack fish, boolean treasureChest, boolean goldenChest);
+    void startMinigame(ServerPlayer player, ItemStack fish, API.Chest chest);
     void completeMinigame(boolean success, double accuracy, boolean gotChest);
 
     void modifyRewards(List<ItemStack> rewards, double accuracy, @Nullable ItemStack fishingRod);

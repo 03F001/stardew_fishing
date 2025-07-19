@@ -1,5 +1,7 @@
 package com.bonker.stardew_fishing.client;
 
+import com.bonker.stardew_fishing.api.API;
+
 import com.bonker.stardew_fishing.Sound;
 import com.bonker.stardew_fishing.StardewFishing;
 import com.bonker.stardew_fishing.client.util.Animation;
@@ -68,9 +70,9 @@ public class FishingScreen extends Screen {
 
     private float partialTick = 0;
 
-    public FishingScreen(FishBehavior behavior, ItemStack fish, boolean treasureChest, boolean goldenChest) {
+    public FishingScreen(FishBehavior behavior, ItemStack fish, API.Chest chest) {
         super(TITLE);
-        this.minigame = new FishingMinigame(this, behavior, treasureChest, goldenChest);
+        this.minigame = new FishingMinigame(this, behavior, chest);
         this.fish = fish;
         this.progressBar = new Animation(minigame.getProgress());
     }

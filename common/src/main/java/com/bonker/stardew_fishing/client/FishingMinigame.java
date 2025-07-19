@@ -1,5 +1,7 @@
 package com.bonker.stardew_fishing.client;
 
+import com.bonker.stardew_fishing.api.API;
+
 import com.bonker.stardew_fishing.StardewFishing;
 import com.bonker.stardew_fishing.Sound;
 import com.bonker.stardew_fishing.FishBehavior;
@@ -45,18 +47,18 @@ public class FishingMinigame {
     private int successTicks = 0;
     private int totalTicks = 0;
 
-    private final boolean goldenChest;
+    private final API.Chest chest;
     private final int chestPos;
     private int chestAppearTime;
     private float chestTimer = 0;
     private boolean chestVisible = false;
 
-    public FishingMinigame(FishingScreen screen, FishBehavior behavior, boolean treasureChest, boolean goldenChest) {
+    public FishingMinigame(FishingScreen screen, FishBehavior behavior, API.Chest chest) {
         this.screen = screen;
         this.behavior = behavior;
-        this.goldenChest = goldenChest;
-        this.chestPos = treasureChest ? (int) (5 + 125 * random.nextFloat()) : 0;
-        this.chestAppearTime = treasureChest ? (int) (20 + 40 * random.nextFloat()) : -1;
+        this.chest = chest;
+        this.chestPos = chest != API.Chest.none ? (int) (5 + 125 * random.nextFloat()) : 0;
+        this.chestAppearTime = chest != API.Chest.none ? (int) (20 + 40 * random.nextFloat()) : -1;
 
         // set bobber flags
         Player player = Minecraft.getInstance().player;
@@ -142,6 +144,7 @@ public class FishingMinigame {
         // treasure chest timer
         if (chestAppearTime > 0 && --chestAppearTime == 0) {
             chestVisible = true;
+            screen.playSound(Sound.dwop);
         }
 
         // game logic
@@ -216,7 +219,7 @@ public class FishingMinigame {
     }
 
     public boolean isGoldenChest() {
-        return goldenChest;
+        return chest == API.Chest.golden;
     }
 
     public float getChestProgress() {
