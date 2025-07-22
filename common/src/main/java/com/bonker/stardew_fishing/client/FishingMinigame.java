@@ -2,10 +2,11 @@ package com.bonker.stardew_fishing.client;
 
 import com.bonker.stardew_fishing.api.API;
 
+import com.bonker.stardew_fishing.CommonPlatform;
 import com.bonker.stardew_fishing.StardewFishing;
 import com.bonker.stardew_fishing.Sound;
 import com.bonker.stardew_fishing.FishBehavior;
-import com.bonker.stardew_fishing.FishingHookExt;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -63,7 +64,7 @@ public class FishingMinigame {
         // set bobber flags
         Player player = Minecraft.getInstance().player;
         if (StardewFishing.BOBBER_ITEMS_REGISTERED && player != null) {
-            InteractionHand hand = FishingHookExt.getRodHand(player);
+            InteractionHand hand = CommonPlatform.getRodHand(player);
             if (hand != null) {
                 Item bobberItem = StardewFishing.platform.getBobber(player.getItemInHand(hand)).getItem();
                 if (bobberItem == StardewFishing.platform.getItem(com.bonker.stardew_fishing.Item.cork_bobber)) {

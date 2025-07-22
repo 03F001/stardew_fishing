@@ -7,8 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 final public class StardewFishingAPI {
     private static API impl;
 
@@ -17,9 +15,10 @@ final public class StardewFishingAPI {
         StardewFishingAPI.impl = impl;
     }
 
-    public static boolean detour_FishingHook$retrieve(ItemStack rod, @NotNull FishingHook hook, @NotNull List<ItemStack> loot) { return impl.detour_FishingHook$retrieve(rod, hook, loot); }
+    public static void detour_FishingHook$retrieve(ItemStack rod, @NotNull FishingHook hook) { impl.detour_FishingHook$retrieve(rod, hook); }
 
     public static void startMinigame(ServerPlayer player, ItemStack fish, API.Chest chest) { impl.startMinigame(player, fish, chest); }
+    public static void endMinigame(ServerPlayer player, boolean success, double accuracy, boolean gotChest) { impl.endMinigame(player, success, accuracy, gotChest); }
 
     public static boolean isStartMinigame(ItemStack item) { return impl.isStartMinigame(item); }
 
@@ -36,4 +35,14 @@ final public class StardewFishingAPI {
     }
 
     public static API.Chest rollChest(ServerPlayer player) { return impl.rollChest(player); }
+
+    public static void register(API.ListenerFishRetrieveBegin listener) { impl.register(listener); }
+    public static void registerBefore(API.ListenerFishRetrieveBegin before, API.ListenerFishRetrieveBegin listener) { impl.registerBefore(before, listener); }
+    public static void registerAfter(API.ListenerFishRetrieveBegin after, API.ListenerFishRetrieveBegin listener) { impl.registerAfter(after, listener); }
+    public static boolean unregister(API.ListenerFishRetrieveBegin listener) { return impl.unregister(listener); }
+
+    public static void register(API.ListenerMinigameEnd listener) { impl.register(listener); }
+    public static void registerBefore(API.ListenerMinigameEnd before, API.ListenerMinigameEnd listener) { impl.registerBefore(before, listener); }
+    public static void registerAfter(API.ListenerMinigameEnd after, API.ListenerMinigameEnd listener) { impl.registerAfter(after, listener); }
+    public static boolean unregister(API.ListenerMinigameEnd listener) { return impl.unregister(listener); }
 }

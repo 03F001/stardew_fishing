@@ -2,6 +2,7 @@ package com.bonker.stardew_fishing.fabric;
 
 import com.bonker.stardew_fishing.StardewFishing;
 
+import com.bonker.stardew_fishing.api.StardewFishingAPI;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -22,7 +23,9 @@ public class Entry implements ModInitializer {
             StardewFishing.MOD_NAME = mod.getMetadata().getName() + " " + mod.getMetadata().getVersion().getFriendlyString();
         });
 
-        StardewFishing.platform = new FabricPlatform();
+        var platform = new FabricPlatform();
+        StardewFishing.platform = platform;
+        StardewFishingAPI.__init(platform);
 
         Recipes.register();
         if (StardewFishing.TIDE_INSTALLED) {

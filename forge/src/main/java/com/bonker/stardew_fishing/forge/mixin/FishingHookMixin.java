@@ -1,11 +1,8 @@
 package com.bonker.stardew_fishing.forge.mixin;
 
 import com.bonker.stardew_fishing.api.StardewFishingAPI;
-import com.bonker.stardew_fishing.FishingHookExt;
-import com.bonker.stardew_fishing.StardewFishing;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -15,14 +12,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.util.List;
 
 @Mixin(value = FishingHook.class)
 public abstract class FishingHookMixin extends Entity implements FishingHookAccessor {
@@ -43,12 +37,12 @@ public abstract class FishingHookMixin extends Entity implements FishingHookAcce
             time -= getLureSpeed() * 20 * 5;
 
             // apply configurable reduction
-            time = Math.max(1, (int) (time * StardewFishing.platform.getBiteTimeMultiplier()));
+            time = Math.max(1, (int) (time * StardewFishingAPI.getBiteTimeMultiplier()));
 
             setTimeUntilLured(time);
         }
 
-        if (!FishingHookExt.getStoredRewards(hook).isEmpty()) {
+        if (!StardewFishingAPI.getFishingHookExt(hook).rewards.isEmpty()) {
             ci.cancel();
         }
     }
@@ -57,42 +51,16 @@ public abstract class FishingHookMixin extends Entity implements FishingHookAcce
         method = "retrieve",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"),
+            target = "Lnet/minecraft/world/level/storage/loot/LootParams$Builder;<init>(Lnet/minecraft/server/level/ServerLevel;)V"),
         locals = LocalCapture.CAPTURE_FAILSOFT,
         cancellable = true)
     public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir,
         net.minecraft.world.entity.player.Player player,
         int i,
-        net.minecraftforge.event.entity.player.ItemFishedEvent event,
-        net.minecraft.world.level.storage.loot.LootParams lootparams,
-        net.minecraft.world.level.storage.loot.LootTable loottable,
-        List<ItemStack> list)
+        net.minecraftforge.event.entity.player.ItemFishedEvent event)
     {
         FishingHook hook = (FishingHook) (Object) this;
-        if (StardewFishingAPI.detour_FishingHook$retrieve(pStack, hook, list))
-            cir.cancel();
+        StardewFishingAPI.detour_FishingHook$retrieve(pStack, hook);
+        cir.cancel();
     }
-}
-
-@Mixin(FishingHook.class)
-interface FishingHookAccessor {
-    @Accessor("DATA_BITING")
-    static EntityDataAccessor<Boolean> getDataBiting() {
-        throw new AssertionError("Untransformed accessor");
-    }
-
-    @Accessor
-    int getNibble();
-
-    @Accessor
-    int getTimeUntilHooked();
-
-    @Accessor
-    int getTimeUntilLured();
-
-    @Accessor
-    void setTimeUntilLured(int value);
-
-    @Accessor
-    int getLureSpeed();
 }

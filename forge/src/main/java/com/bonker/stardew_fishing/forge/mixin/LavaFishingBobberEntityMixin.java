@@ -1,13 +1,9 @@
 package com.bonker.stardew_fishing.forge.mixin;
 
-import com.bonker.stardew_fishing.FishingHookExt;
-import com.bonker.stardew_fishing.Sound;
-import com.bonker.stardew_fishing.StardewFishing;
-
 import com.bonker.stardew_fishing.api.StardewFishingAPI;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -53,10 +49,10 @@ public abstract class LavaFishingBobberEntityMixin extends FishingHook {
             timeUntilLured -= lureSpeed * 20 * 5;
 
             // apply configurable reduction
-            timeUntilLured = Math.max(1, (int) (timeUntilLured * StardewFishing.platform.getBiteTimeMultiplier()));
+            timeUntilLured = Math.max(1, (int) (timeUntilLured * StardewFishingAPI.getBiteTimeMultiplier()));
         }
 
-        if (!FishingHookExt.getStoredRewards(this).isEmpty()) {
+        if (!StardewFishingAPI.getFishingHookExt(this).rewards.isEmpty()) {
             ci.cancel();
         }
     }
@@ -65,15 +61,12 @@ public abstract class LavaFishingBobberEntityMixin extends FishingHook {
         method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"),
+            target = "Lnet/minecraft/world/level/storage/loot/LootParams$Builder;<init>(Lnet/minecraft/server/level/ServerLevel;)V"),
         locals = LocalCapture.CAPTURE_FAILSOFT,
         cancellable = true)
     public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, List<ItemStack> items) {
         ServerPlayer player = (ServerPlayer) getPlayerOwner();
-        if (player == null) return;
-
-        if (StardewFishingAPI.detour_FishingHook$retrieve(pStack, this, items)) {
-            cir.cancel();
-        }
+        StardewFishingAPI.detour_FishingHook$retrieve(pStack, this);
+        cir.cancel();
     }
 }

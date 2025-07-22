@@ -1,7 +1,6 @@
 package com.bonker.stardew_fishing.forge.mixin;
 
 import com.bonker.stardew_fishing.api.StardewFishingAPI;
-import com.bonker.stardew_fishing.FishingHookExt;
 import com.bonker.stardew_fishing.Sound;
 import com.bonker.stardew_fishing.StardewFishing;
 
@@ -59,12 +58,12 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
             time -= getLureSpeed() * 20 * 5;
 
             // apply configurable reduction
-            time = Math.max(1, (int) (time * StardewFishing.platform.getBiteTimeMultiplier()));
+            time = Math.max(1, (int) (time * StardewFishingAPI.getBiteTimeMultiplier()));
 
             setTimeUntilLured(time);
         }
 
-        if (!FishingHookExt.getStoredRewards(this).isEmpty()) {
+        if (!StardewFishingAPI.getFishingHookExt(this).rewards.isEmpty()) {
             ci.cancel();
         }
     }
@@ -85,12 +84,13 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
         for (var item : items) {
             if (!StardewFishingAPI.isStartMinigame(item)) continue;
 
-            FishingHookExt.getStoredRewards(hook).addAll(items);
+            var rewards = StardewFishingAPI.getFishingHookExt(hook).rewards;
+            rewards.addAll(items);
             if (hook.hasHook() && hook.getHook().getDoubleCatchChance() > 0.0 && this.random.nextDouble() <= hook.getHook().getDoubleCatchChance()) {
                 List<ItemStack> doubleLoot = getLoot(lootParams, serverLevel);
                 if (!doubleLoot.isEmpty()) {
                     MinecraftForge.EVENT_BUS.post(new ItemFishedEvent(doubleLoot, 0, this));
-                    FishingHookExt.getStoredRewards(hook).addAll(doubleLoot);
+                    rewards.addAll(doubleLoot);
                     playSound(SoundEvents.FISHING_BOBBER_SPLASH, 0.25F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
                 }
             }
@@ -112,7 +112,7 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
             cir.cancel();
         }
 
-        FishingHookExt.modifyRewards(items, 0, null);
+        //FishingHookExt.modifyRewards(items, 0, null);
         player.level().playSound(null, player, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 }
