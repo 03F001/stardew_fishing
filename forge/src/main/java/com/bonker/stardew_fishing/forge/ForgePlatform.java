@@ -323,8 +323,8 @@ record C2SCompleteMinigamePacket(boolean success, double accuracy, boolean gotCh
                 StardewFishing.LOGGER.warn("{} tried to complete a fishing minigame without a fishing rod", player.getScoreboardName());
             } else {
                 ItemStack fishingRod = player.getItemInHand(hand);
-                StardewFishingAPI.endMinigame(player, success, accuracy, gotChest);
-                fishingRod.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
+                var evtEnd = StardewFishingAPI.endMinigame(player, success, accuracy, gotChest);
+                fishingRod.hurtAndBreak(evtEnd.inout_rodDamage, player, p -> p.broadcastBreakEvent(hand));
 
                 if (StardewFishing.AQUACULTURE_INSTALLED) {
                     Aquaculture.damageEquippedBobber(fishingRod, player);

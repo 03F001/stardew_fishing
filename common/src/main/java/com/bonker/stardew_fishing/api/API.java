@@ -13,7 +13,7 @@ interface EventCancellable {
 }
 
 public interface API {
-    void detour_FishingHook$retrieve(ItemStack rod, @NotNull FishingHook hook);
+    int detour_FishingHook$retrieve(ItemStack rod, @NotNull FishingHook hook);
 
     enum Chest {
         none,
@@ -22,7 +22,7 @@ public interface API {
     }
 
     void startMinigame(ServerPlayer player, ItemStack fish, Chest chest);
-    void endMinigame(ServerPlayer player, boolean success, double accuracy, boolean gotChest);
+    EventMinigameEnd endMinigame(ServerPlayer player, boolean success, double accuracy, boolean gotChest);
 
     boolean isStartMinigame(ItemStack item);
 
@@ -65,6 +65,7 @@ public interface API {
         public double accuracy;
         public Chest chest;
 
+        public int inout_rodDamage;
         public ArrayList<ItemStack> inout_rewards;
     }
     interface ListenerMinigameEnd {

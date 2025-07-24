@@ -56,7 +56,8 @@ public abstract class FishingHookMixin extends Entity implements FishingHookAcce
                          int i)
     {
         FishingHook hook = (FishingHook) (Object) this;
-        StardewFishingAPI.detour_FishingHook$retrieve(pStack, hook);
+        var rodDamage = StardewFishingAPI.detour_FishingHook$retrieve(pStack, hook);
+        cir.setReturnValue(rodDamage);
         cir.cancel();
     }
 }

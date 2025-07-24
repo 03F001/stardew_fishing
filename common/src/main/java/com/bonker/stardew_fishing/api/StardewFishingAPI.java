@@ -15,10 +15,10 @@ final public class StardewFishingAPI {
         StardewFishingAPI.impl = impl;
     }
 
-    public static void detour_FishingHook$retrieve(ItemStack rod, @NotNull FishingHook hook) { impl.detour_FishingHook$retrieve(rod, hook); }
+    public static int detour_FishingHook$retrieve(ItemStack rod, @NotNull FishingHook hook) { return impl.detour_FishingHook$retrieve(rod, hook); }
 
     public static void startMinigame(ServerPlayer player, ItemStack fish, API.Chest chest) { impl.startMinigame(player, fish, chest); }
-    public static void endMinigame(ServerPlayer player, boolean success, double accuracy, boolean gotChest) { impl.endMinigame(player, success, accuracy, gotChest); }
+    public static API.EventMinigameEnd endMinigame(ServerPlayer player, boolean success, double accuracy, boolean gotChest) { return impl.endMinigame(player, success, accuracy, gotChest); }
 
     public static boolean isStartMinigame(ItemStack item) { return impl.isStartMinigame(item); }
 

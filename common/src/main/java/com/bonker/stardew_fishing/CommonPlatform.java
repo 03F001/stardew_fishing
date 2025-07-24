@@ -37,42 +37,44 @@ abstract public class CommonPlatform implements API, Platform {
     }
 
     @Override
-    public void detour_FishingHook$retrieve(ItemStack rod, @NotNull FishingHook hook) {
+    public int detour_FishingHook$retrieve(ItemStack rod, @NotNull FishingHook hook) {
         var player = (ServerPlayer)hook.getPlayerOwner();
-        if (player == null)
-            return;
-
         var evtBegin = emit_EventRetrieveBegin(player, rod, hook, new ArrayList<>(), Chest.none, null);
         if (evtBegin.inout_fish != null) {
             var ext = getFishingHookExt(hook);
             ext.rewards = evtBegin.inout_loot;
             ext.chest = evtBegin.inout_chest;
             startMinigame(player, evtBegin.inout_fish, ext.chest);
-            return;
+            return 0;
         }
 
-        endMinigame(player, true, 0, false);
+        var evtEnd = endMinigame(player, true, 0, false);
+        return evtEnd.inout_rodDamage;
     }
 
     @Override
-    public void endMinigame(ServerPlayer player, boolean success, double accuracy, boolean gotChest) {
+    public EventMinigameEnd endMinigame(ServerPlayer player, boolean success, double accuracy, boolean gotChest) {
         player.level().playSound(null, player, StardewFishing.platform.getSoundEvent(Sound.pull_item), SoundSource.PLAYERS, 1.0F, 1.0F);
 
         var hand = getRodHand(player);
         var hook = player.fishing;
         var ext = getFishingHookExt(hook);
-        emit_EventMinigameEnd(
+        var ret = emit_EventMinigameEnd(
             player,
             hand != null ? player.getItemInHand(hand) : null,
             hook,
             ext.rewards,
             success,
             accuracy,
-            !gotChest ? Chest.none : ext.chest);
+            !gotChest ? Chest.none : ext.chest,
+            hook.onGround() ? 2 : 1,
+            new ArrayList<>());
 
         if (player.fishing != null) {
             player.fishing.discard();
         }
+
+        return ret;
     }
 
     @Override
@@ -132,7 +134,14 @@ abstract public class CommonPlatform implements API, Platform {
         return listenersFishRetrieveBegin.remove(listener);
     }
 
-    public EventFishRetrieveBegin emit_EventRetrieveBegin(ServerPlayer player, ItemStack rod, FishingHook hook, ArrayList<ItemStack> inout_loot, Chest inout_chest, ItemStack inout_fish) {
+    public EventFishRetrieveBegin emit_EventRetrieveBegin(
+        ServerPlayer player,
+        ItemStack rod,
+        FishingHook hook,
+        ArrayList<ItemStack> inout_loot,
+        Chest inout_chest,
+        ItemStack inout_fish)
+    {
         var evt = new EventFishRetrieveBegin() {
             public boolean cancelled = false;
             public void cancel() {
@@ -186,7 +195,17 @@ abstract public class CommonPlatform implements API, Platform {
         return listenersMinigameEnd.remove(listener);
     }
 
-    public EventMinigameEnd emit_EventMinigameEnd(ServerPlayer player, ItemStack rod, FishingHook hook, ArrayList<ItemStack> initialLoot, boolean success, double accuracy, Chest chest) {
+    public EventMinigameEnd emit_EventMinigameEnd(
+        ServerPlayer player,
+        ItemStack rod,
+        FishingHook hook,
+        ArrayList<ItemStack> initialLoot,
+        boolean success,
+        double accuracy,
+        Chest chest,
+        int inout_rodDamage,
+        ArrayList<ItemStack> inout_rewards)
+    {
         var evt = new EventMinigameEnd() {
             public boolean cancelled = false;
             public void cancel() {
@@ -200,7 +219,8 @@ abstract public class CommonPlatform implements API, Platform {
         evt.success = success;
         evt.accuracy = accuracy;
         evt.chest = chest;
-        evt.inout_rewards = new ArrayList<>();
+        evt.inout_rodDamage = inout_rodDamage;
+        evt.inout_rewards = inout_rewards;
         for (var l : listenersMinigameEnd) {
             l.event(evt);
             if (evt.cancelled) {

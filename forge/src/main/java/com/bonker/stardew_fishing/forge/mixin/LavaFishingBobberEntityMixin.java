@@ -66,7 +66,8 @@ public abstract class LavaFishingBobberEntityMixin extends FishingHook {
         cancellable = true)
     public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, List<ItemStack> items) {
         ServerPlayer player = (ServerPlayer) getPlayerOwner();
-        StardewFishingAPI.detour_FishingHook$retrieve(pStack, this);
+        var rodDamage = StardewFishingAPI.detour_FishingHook$retrieve(pStack, this);
+        cir.setReturnValue(rodDamage);
         cir.cancel();
     }
 }
