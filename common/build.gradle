@@ -2,6 +2,12 @@ plugins {
     id 'java-library'
 }
 
+base {
+    group = group
+    version = version
+    archivesName = mod_id
+}
+
 compileJava.enabled = false
 compileTestJava.enabled = false
 
@@ -16,4 +22,8 @@ def genVersion = tasks.register('genVersion', Copy) {
 
 sourceSets.main.java {
     srcDir genVersion
+}
+
+dependencies {
+    api project(':api')
 }

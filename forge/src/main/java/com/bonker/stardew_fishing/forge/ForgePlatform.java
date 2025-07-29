@@ -90,7 +90,7 @@ public class ForgePlatform extends CommonPlatform {
 
     ForgeFishBehaviorReloadListener fishBehaviorReloadListener = new ForgeFishBehaviorReloadListener();
 
-    public final ListenerMinigameEnd forgeEventItemFished = evt -> {
+    public final ListenerExtMinigameEnd forgeEventItemFished = evt -> {
         int rodDamage = evt.hook.onGround() ? 2 : 1;
         if (MinecraftForge.EVENT_BUS.post(new ItemFishedEvent(evt.inout_rewards, rodDamage, evt.hook))) {
             evt.cancel();
@@ -210,7 +210,7 @@ public class ForgePlatform extends CommonPlatform {
         channel.send(PacketDistributor.SERVER.noArg(), new C2SCompleteMinigamePacket(success, accuracy, gotChest));
     }
 
-    public final ListenerMinigameEnd modifyRewards = evt -> {
+    public final ListenerExtMinigameEnd modifyRewards = evt -> {
         if (!StardewFishing.QUALITY_FOOD_INSTALLED) return;
 
         int quality = getQuality(evt.accuracy);
@@ -311,7 +311,7 @@ record C2SCompleteMinigamePacket(boolean success, double accuracy, boolean gotCh
         }
 
         var hook = player.fishing;
-        if (hook == null || StardewFishingAPI.getFishingHookExt(hook).rewards.isEmpty()) {
+        if (hook == null || !StardewFishingAPI.isMinigameStarted(hook)) {
             StardewFishing.LOGGER.warn("{} tried to complete a fishing minigame that doesn't exist", player.getScoreboardName());
             return;
         }

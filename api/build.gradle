@@ -1,0 +1,24 @@
+plugins {
+    id 'java-library'
+    id 'fabric-loom' version '1.7-SNAPSHOT'
+}
+
+base {
+    group = group
+    version = version
+    archivesName = mod_id
+}
+
+dependencies {
+    minecraft group: 'com.mojang', name: 'minecraft', version: "${minecraft_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
+    }
+}
+
+tasks.named('remapJar') {
+    archiveBaseName = mod_id
+    archiveVersion = "${version}+mc${minecraft_version}"
+    archiveClassifier = 'api'
+}

@@ -39,7 +39,7 @@ public abstract class FishingHookMixin extends Entity implements FishingHookAcce
             setTimeUntilLured(time);
         }
 
-        if (!StardewFishingAPI.getFishingHookExt(hook).rewards.isEmpty()) {
+        if (StardewFishingAPI.isMinigameStarted(hook)) {
             ci.cancel();
         }
     }

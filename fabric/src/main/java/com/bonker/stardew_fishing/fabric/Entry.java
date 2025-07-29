@@ -1,8 +1,8 @@
 package com.bonker.stardew_fishing.fabric;
 
+import com.bonker.stardew_fishing.api.StardewFishingAPI;
 import com.bonker.stardew_fishing.StardewFishing;
 
-import com.bonker.stardew_fishing.api.StardewFishingAPI;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 

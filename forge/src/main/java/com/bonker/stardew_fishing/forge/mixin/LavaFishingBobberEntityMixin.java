@@ -52,7 +52,7 @@ public abstract class LavaFishingBobberEntityMixin extends FishingHook {
             timeUntilLured = Math.max(1, (int) (timeUntilLured * StardewFishingAPI.getBiteTimeMultiplier()));
         }
 
-        if (!StardewFishingAPI.getFishingHookExt(this).rewards.isEmpty()) {
+        if (StardewFishingAPI.isMinigameStarted(this)) {
             ci.cancel();
         }
     }

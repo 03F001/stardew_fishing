@@ -63,7 +63,7 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
             setTimeUntilLured(time);
         }
 
-        if (!StardewFishingAPI.getFishingHookExt(this).rewards.isEmpty()) {
+        if (StardewFishingAPI.isMinigameStarted(this)) {
             ci.cancel();
         }
     }
@@ -84,7 +84,7 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook implement
         for (var item : items) {
             if (!StardewFishingAPI.isStartMinigame(item)) continue;
 
-            var rewards = StardewFishingAPI.getFishingHookExt(hook).rewards;
+            var rewards = StardewFishingAPI.getFishingHookExt(hook).loot;
             rewards.addAll(items);
             if (hook.hasHook() && hook.getHook().getDoubleCatchChance() > 0.0 && this.random.nextDouble() <= hook.getHook().getDoubleCatchChance()) {
                 List<ItemStack> doubleLoot = getLoot(lootParams, serverLevel);

@@ -5,8 +5,10 @@ import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.ItemStack;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 interface EventCancellable {
     void cancel();
@@ -22,13 +24,16 @@ public interface API {
     }
 
     void startMinigame(ServerPlayer player, ItemStack fish, Chest chest);
+    void startExtMinigame(ServerPlayer player, ItemStack fish, @Nullable List<ItemStack> loot, Chest chest);
     EventMinigameEnd endMinigame(ServerPlayer player, boolean success, double accuracy, boolean gotChest);
 
     boolean isStartMinigame(ItemStack item);
+    boolean isMinigameStarted(FishingHook hook);
 
     class FishingHookExt {
-        public ArrayList<ItemStack> rewards = new ArrayList<>();
-        public Chest chest = Chest.none;
+        public @Nullable ItemStack fish = null;
+        public @NotNull ArrayList<ItemStack> loot = new ArrayList<>();
+        public Chest chest;
     }
 
     FishingHookExt getFishingHookExt(FishingHook hook);
@@ -60,6 +65,25 @@ public interface API {
         public ServerPlayer player;
         public ItemStack rod;
         public FishingHook hook;
+        public boolean success;
+        public double accuracy;
+        public boolean gotChest;
+
+        public int inout_rodDamage;
+    };
+    interface ListenerMinigameEnd {
+        void event(EventMinigameEnd evt);
+    }
+    void register(ListenerMinigameEnd listener);
+    void registerBefore(ListenerMinigameEnd before, ListenerMinigameEnd listener);
+    void registerAfter(ListenerMinigameEnd after, ListenerMinigameEnd listener);
+    boolean unregister(ListenerMinigameEnd listener);
+
+    abstract class EventExtMinigameEnd implements EventCancellable {
+        public ServerPlayer player;
+        public ItemStack rod;
+        public FishingHook hook;
+        public ItemStack fish;
         public ArrayList<ItemStack> initialLoot;
         public boolean success;
         public double accuracy;
@@ -68,11 +92,11 @@ public interface API {
         public int inout_rodDamage;
         public ArrayList<ItemStack> inout_rewards;
     }
-    interface ListenerMinigameEnd {
-        void event(EventMinigameEnd evt);
+    interface ListenerExtMinigameEnd {
+        void event(EventExtMinigameEnd evt);
     }
-    void register(ListenerMinigameEnd listener);
-    void registerBefore(ListenerMinigameEnd before, ListenerMinigameEnd listener);
-    void registerAfter(ListenerMinigameEnd after, ListenerMinigameEnd listener);
-    boolean unregister(ListenerMinigameEnd listener);
+    void register(ListenerExtMinigameEnd listener);
+    void registerBefore(ListenerExtMinigameEnd before, ListenerExtMinigameEnd listener);
+    void registerAfter(ListenerExtMinigameEnd after, ListenerExtMinigameEnd listener);
+    boolean unregister(ListenerExtMinigameEnd listener);
 }

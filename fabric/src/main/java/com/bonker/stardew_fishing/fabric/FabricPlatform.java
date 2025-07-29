@@ -248,7 +248,7 @@ record C2SCompleteMinigamePacket(boolean success, double accuracy, boolean gotCh
         }
 
         var hook = player.fishing;
-        if (hook == null || StardewFishingAPI.getFishingHookExt(hook).rewards.isEmpty()) {
+        if (hook == null || !StardewFishingAPI.isMinigameStarted(hook)) {
             StardewFishing.LOGGER.warn("{} tried to complete a fishing minigame that doesn't exist", player.getScoreboardName());
             return;
         }
